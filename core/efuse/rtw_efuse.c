@@ -2564,7 +2564,7 @@ u32 rtw_read_efuse_from_file(const char *path, u8 *buf)
 	set_fs(KERNEL_DS);
 
 	for (i = 0 ; i < HWSET_MAX_SIZE ; i++) {
-		vfs_read(fp, temp, 2, &pos);
+		kernel_read(fp, temp, 2, &pos);
 		if (sscanf(temp, "%hhx", &buf[i]) != 1) {
 			if (0)
 				RTW_ERR("%s sscanf fail\n", __func__);
@@ -2572,10 +2572,10 @@ u32 rtw_read_efuse_from_file(const char *path, u8 *buf)
 		}
 		if ((i % EFUSE_FILE_COLUMN_NUM) == (EFUSE_FILE_COLUMN_NUM - 1)) {
 			/* Filter the lates space char. */
-			vfs_read(fp, temp, 1, &pos);
+			kernel_read(fp, temp, 1, &pos);
 			if (strchr(temp, ' ') == NULL) {
 				pos--;
-				vfs_read(fp, temp, 2, &pos);
+				kernel_read(fp, temp, 2, &pos);
 			}
 		} else {
 			pos += 1; /* Filter the space character */
@@ -2632,7 +2632,7 @@ u32 rtw_read_macaddr_from_file(const char *path, u8 *buf)
 	fs = get_fs();
 	set_fs(KERNEL_DS);
 
-	vfs_read(fp, source_addr, 18, &pos);
+	kernel_read(fp, source_addr, 18, &pos);
 	source_addr[17] = ':';
 
 	head = end = source_addr;

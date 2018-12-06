@@ -4724,7 +4724,7 @@ int rtw_dev_nlo_info_set(struct pno_nlo_info *nlo_info, pno_ssid_t *ssid,
 	source = rtw_zmalloc(2048);
 
 	if (source != NULL) {
-		len = vfs_read(fp, source, len, &pos);
+		len = kernel_read(fp, source, len, &pos);
 		rtw_parse_cipher_list(nlo_info, source);
 		rtw_mfree(source, 2048);
 	}
