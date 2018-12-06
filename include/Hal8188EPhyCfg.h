@@ -1,6 +1,6 @@
 /******************************************************************************
  *
- * Copyright(c) 2007 - 2017 Realtek Corporation.
+ * Copyright(c) 2007 - 2011 Realtek Corporation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
@@ -11,7 +11,12 @@
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
  * more details.
  *
- *****************************************************************************/
+ * You should have received a copy of the GNU General Public License along with
+ * this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110, USA
+ *
+ *
+ ******************************************************************************/
 #ifndef __INC_HAL8188EPHYCFG_H__
 #define __INC_HAL8188EPHYCFG_H__
 
@@ -112,9 +117,8 @@ PHY_GetTxPowerIndex_8188E(
 	IN	PADAPTER		pAdapter,
 	IN	u8				RFPath,
 	IN	u8				Rate,
-	IN	u8				BandWidth,
-	IN	u8				Channel,
-	struct txpwr_idx_comp *tic
+	IN	CHANNEL_WIDTH	BandWidth,
+	IN	u8				Channel
 );
 
 /*
@@ -162,7 +166,7 @@ PHY_SetRFEReg_8188E(
 /*
  * BB/MAC/RF other monitor API
  *   */
-VOID phy_set_rf_path_switch_8188e(IN	PADAPTER	pAdapter, IN	bool		bMain);
+VOID PHY_SetRFPathSwitch_8188E(IN	PADAPTER	pAdapter, IN	BOOLEAN		bMain);
 
 extern	VOID
 PHY_SwitchEphyParameter(
@@ -180,6 +184,13 @@ SetAntennaConfig92C(
 	IN	u8		DefaultAnt
 );
 
+VOID
+storePwrIndexDiffRateOffset(
+	IN	PADAPTER	Adapter,
+	IN	u32		RegAddr,
+	IN	u32		BitMask,
+	IN	u32		Data
+);
 /*--------------------------Exported Function prototype---------------------*/
 
 /*

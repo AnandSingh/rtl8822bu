@@ -1,213 +1,108 @@
-/******************************************************************************
-*
-* Copyright(c) 2007 - 2017 Realtek Corporation.
-*
-* This program is free software; you can redistribute it and/or modify it
-* under the terms of version 2 of the GNU General Public License as
-* published by the Free Software Foundation.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT
-* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
-* more details.
-*
+/****************************************************************************** 
+* 
+* Copyright(c) 2007 - 2011 Realtek Corporation. All rights reserved. 
+* 
+* This program is free software; you can redistribute it and/or modify it 
+* under the terms of version 2 of the GNU General Public License as 
+* published by the Free Software Foundation. 
+* 
+* This program is distributed in the hope that it will be useful, but WITHOUT 
+* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or 
+* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for 
+* more details. 
+* 
+* You should have received a copy of the GNU General Public License along with 
+* this program; if not, write to the Free Software Foundation, Inc., 
+* 51 Franklin Street, Fifth Floor, Boston, MA 02110, USA 
+* 
+* 
 ******************************************************************************/
 
-/*Image2HeaderVersion: R2 1.2.1*/
+/*Image2HeaderVersion: 2.22*/
 #if (RTL8822B_SUPPORT == 1)
 #ifndef __INC_MP_RF_HW_IMG_8822B_H
 #define __INC_MP_RF_HW_IMG_8822B_H
 
 
 /******************************************************************************
-*                           radioa.TXT
+*                           RadioA.TXT
 ******************************************************************************/
 
 void
-odm_read_and_config_mp_8822b_radioa(/* tc: Test Chip, mp: mp Chip*/
-	struct	PHY_DM_STRUCT *p_dm_odm
+ODM_ReadAndConfig_MP_8822B_RadioA(/* TC: Test Chip, MP: MP Chip*/
+	IN   PDM_ODM_T  pDM_Odm
 );
-u32	odm_get_version_mp_8822b_radioa(void);
+u4Byte ODM_GetVersion_MP_8822B_RadioA(void);
 
 /******************************************************************************
-*                           radiob.TXT
+*                           RadioB.TXT
 ******************************************************************************/
 
 void
-odm_read_and_config_mp_8822b_radiob(/* tc: Test Chip, mp: mp Chip*/
-	struct	PHY_DM_STRUCT *p_dm_odm
+ODM_ReadAndConfig_MP_8822B_RadioB(/* TC: Test Chip, MP: MP Chip*/
+	IN   PDM_ODM_T  pDM_Odm
 );
-u32	odm_get_version_mp_8822b_radiob(void);
+u4Byte ODM_GetVersion_MP_8822B_RadioB(void);
 
 /******************************************************************************
-*                           txpowertrack.TXT
+*                           TxPowerTrack.TXT
 ******************************************************************************/
 
 void
-odm_read_and_config_mp_8822b_txpowertrack(/* tc: Test Chip, mp: mp Chip*/
-	struct	PHY_DM_STRUCT *p_dm_odm
+ODM_ReadAndConfig_MP_8822B_TxPowerTrack(/* TC: Test Chip, MP: MP Chip*/
+	IN   PDM_ODM_T  pDM_Odm
 );
-u32	odm_get_version_mp_8822b_txpowertrack(void);
+u4Byte ODM_GetVersion_MP_8822B_TxPowerTrack(void);
 
 /******************************************************************************
-*                           txpowertrack_type0.TXT
+*                           TxPowerTrack_type0.TXT
 ******************************************************************************/
 
 void
-odm_read_and_config_mp_8822b_txpowertrack_type0(/* tc: Test Chip, mp: mp Chip*/
-	struct	PHY_DM_STRUCT *p_dm_odm
+ODM_ReadAndConfig_MP_8822B_TxPowerTrack_type0(/* TC: Test Chip, MP: MP Chip*/
+	IN   PDM_ODM_T  pDM_Odm
 );
-u32	odm_get_version_mp_8822b_txpowertrack_type0(void);
+u4Byte ODM_GetVersion_MP_8822B_TxPowerTrack_type0(void);
 
 /******************************************************************************
-*                           txpowertrack_type1.TXT
+*                           TxPowerTrack_type1.TXT
 ******************************************************************************/
 
 void
-odm_read_and_config_mp_8822b_txpowertrack_type1(/* tc: Test Chip, mp: mp Chip*/
-	struct	PHY_DM_STRUCT *p_dm_odm
+ODM_ReadAndConfig_MP_8822B_TxPowerTrack_type1(/* TC: Test Chip, MP: MP Chip*/
+	IN   PDM_ODM_T  pDM_Odm
 );
-u32	odm_get_version_mp_8822b_txpowertrack_type1(void);
+u4Byte ODM_GetVersion_MP_8822B_TxPowerTrack_type1(void);
 
 /******************************************************************************
-*                           txpowertrack_type10.TXT
+*                           TxPowerTrack_Type3_Type5.TXT
 ******************************************************************************/
 
 void
-odm_read_and_config_mp_8822b_txpowertrack_type10(/* tc: Test Chip, mp: mp Chip*/
-	struct	PHY_DM_STRUCT *p_dm_odm
+ODM_ReadAndConfig_MP_8822B_TxPowerTrack_Type3_Type5(/* TC: Test Chip, MP: MP Chip*/
+	IN   PDM_ODM_T  pDM_Odm
 );
-u32	odm_get_version_mp_8822b_txpowertrack_type10(void);
+u4Byte ODM_GetVersion_MP_8822B_TxPowerTrack_Type3_Type5(void);
 
 /******************************************************************************
-*                           txpowertrack_type11.TXT
+*                           TxPowerTrack_type6.TXT
 ******************************************************************************/
 
 void
-odm_read_and_config_mp_8822b_txpowertrack_type11(/* tc: Test Chip, mp: mp Chip*/
-	struct	PHY_DM_STRUCT *p_dm_odm
+ODM_ReadAndConfig_MP_8822B_TxPowerTrack_type6(/* TC: Test Chip, MP: MP Chip*/
+	IN   PDM_ODM_T  pDM_Odm
 );
-u32	odm_get_version_mp_8822b_txpowertrack_type11(void);
+u4Byte ODM_GetVersion_MP_8822B_TxPowerTrack_type6(void);
 
 /******************************************************************************
-*                           txpowertrack_type12.TXT
+*                           TxPowerTrack_type7.TXT
 ******************************************************************************/
 
 void
-odm_read_and_config_mp_8822b_txpowertrack_type12(/* tc: Test Chip, mp: mp Chip*/
-	struct	PHY_DM_STRUCT *p_dm_odm
+ODM_ReadAndConfig_MP_8822B_TxPowerTrack_type7(/* TC: Test Chip, MP: MP Chip*/
+	IN   PDM_ODM_T  pDM_Odm
 );
-u32	odm_get_version_mp_8822b_txpowertrack_type12(void);
-
-/******************************************************************************
-*                           txpowertrack_type13.TXT
-******************************************************************************/
-
-void
-odm_read_and_config_mp_8822b_txpowertrack_type13(/* tc: Test Chip, mp: mp Chip*/
-	struct	PHY_DM_STRUCT *p_dm_odm
-);
-u32	odm_get_version_mp_8822b_txpowertrack_type13(void);
-
-/******************************************************************************
-*                           txpowertrack_type14.TXT
-******************************************************************************/
-
-void
-odm_read_and_config_mp_8822b_txpowertrack_type14(/* tc: Test Chip, mp: mp Chip*/
-	struct	PHY_DM_STRUCT *p_dm_odm
-);
-u32	odm_get_version_mp_8822b_txpowertrack_type14(void);
-
-/******************************************************************************
-*                           txpowertrack_type2.TXT
-******************************************************************************/
-
-void
-odm_read_and_config_mp_8822b_txpowertrack_type2(/* tc: Test Chip, mp: mp Chip*/
-	struct	PHY_DM_STRUCT *p_dm_odm
-);
-u32	odm_get_version_mp_8822b_txpowertrack_type2(void);
-
-/******************************************************************************
-*                           txpowertrack_type3_type5.TXT
-******************************************************************************/
-
-void
-odm_read_and_config_mp_8822b_txpowertrack_type3_type5(/* tc: Test Chip, mp: mp Chip*/
-	struct	PHY_DM_STRUCT *p_dm_odm
-);
-u32	odm_get_version_mp_8822b_txpowertrack_type3_type5(void);
-
-/******************************************************************************
-*                           txpowertrack_type4.TXT
-******************************************************************************/
-
-void
-odm_read_and_config_mp_8822b_txpowertrack_type4(/* tc: Test Chip, mp: mp Chip*/
-	struct	PHY_DM_STRUCT *p_dm_odm
-);
-u32	odm_get_version_mp_8822b_txpowertrack_type4(void);
-
-/******************************************************************************
-*                           txpowertrack_type6.TXT
-******************************************************************************/
-
-void
-odm_read_and_config_mp_8822b_txpowertrack_type6(/* tc: Test Chip, mp: mp Chip*/
-	struct	PHY_DM_STRUCT *p_dm_odm
-);
-u32	odm_get_version_mp_8822b_txpowertrack_type6(void);
-
-/******************************************************************************
-*                           txpowertrack_type7.TXT
-******************************************************************************/
-
-void
-odm_read_and_config_mp_8822b_txpowertrack_type7(/* tc: Test Chip, mp: mp Chip*/
-	struct	PHY_DM_STRUCT *p_dm_odm
-);
-u32	odm_get_version_mp_8822b_txpowertrack_type7(void);
-
-/******************************************************************************
-*                           txpowertrack_type8.TXT
-******************************************************************************/
-
-void
-odm_read_and_config_mp_8822b_txpowertrack_type8(/* tc: Test Chip, mp: mp Chip*/
-	struct	PHY_DM_STRUCT *p_dm_odm
-);
-u32	odm_get_version_mp_8822b_txpowertrack_type8(void);
-
-/******************************************************************************
-*                           txpowertrack_type9.TXT
-******************************************************************************/
-
-void
-odm_read_and_config_mp_8822b_txpowertrack_type9(/* tc: Test Chip, mp: mp Chip*/
-	struct	PHY_DM_STRUCT *p_dm_odm
-);
-u32	odm_get_version_mp_8822b_txpowertrack_type9(void);
-
-/******************************************************************************
-*                           txpwr_lmt.TXT
-******************************************************************************/
-
-void
-odm_read_and_config_mp_8822b_txpwr_lmt(/* tc: Test Chip, mp: mp Chip*/
-	struct	PHY_DM_STRUCT *p_dm_odm
-);
-u32	odm_get_version_mp_8822b_txpwr_lmt(void);
-
-/******************************************************************************
-*                           txpwr_lmt_type5.TXT
-******************************************************************************/
-
-void
-odm_read_and_config_mp_8822b_txpwr_lmt_type5(/* tc: Test Chip, mp: mp Chip*/
-	struct	PHY_DM_STRUCT *p_dm_odm
-);
-u32	odm_get_version_mp_8822b_txpwr_lmt_type5(void);
+u4Byte ODM_GetVersion_MP_8822B_TxPowerTrack_type7(void);
 
 #endif
 #endif /* end of HWIMG_SUPPORT*/

@@ -1,25 +1,10 @@
-/******************************************************************************
- *
- * Copyright(c) 2016 - 2017 Realtek Corporation. All rights reserved.
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of version 2 of the GNU General Public License as
- * published by the Free Software Foundation.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- ******************************************************************************/
-
 #ifndef HALMAC_POWER_SEQUENCE_CMD
 #define HALMAC_POWER_SEQUENCE_CMD
 
 #include "halmac_2_platform.h"
 #include "halmac_type.h"
 
-#define HALMAC_POLLING_READY_TIMEOUT_COUNT 20000
+#define HALMAC_POLLING_READY_TIMEOUT_COUNT 10000
 
 /*
 * The value of cmd : 4 bits
@@ -79,14 +64,14 @@
 #define	HALMAC_PWR_INTF_SDIO_MSK	BIT(0)
 #define	HALMAC_PWR_INTF_USB_MSK		BIT(1)
 #define	HALMAC_PWR_INTF_PCI_MSK		BIT(2)
-#define	HALMAC_PWR_INTF_ALL_MSK		(BIT(0) | BIT(1) | BIT(2) | BIT(3))
+#define	HALMAC_PWR_INTF_ALL_MSK		(BIT(0)|BIT(1)|BIT(2)|BIT(3))
 
 /*
 * The value of fab_msk : 4 bits
 */
 #define	HALMAC_PWR_FAB_TSMC_MSK		BIT(0)
 #define	HALMAC_PWR_FAB_UMC_MSK		BIT(1)
-#define	HALMAC_PWR_FAB_ALL_MSK		(BIT(0) | BIT(1) | BIT(2) | BIT(3))
+#define	HALMAC_PWR_FAB_ALL_MSK		(BIT(0)|BIT(1)|BIT(2)|BIT(3))
 
 /*
 * The value of cut_msk : 8 bits

@@ -1,49 +1,31 @@
-/******************************************************************************
- *
- * Copyright(c) 2016 - 2017 Realtek Corporation.
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of version 2 of the GNU General Public License as
- * published by the Free Software Foundation.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- *****************************************************************************/
 
 #include <drv_types.h>
 #include <rtw_mem.h>
 
 MODULE_LICENSE("GPL");
-MODULE_DESCRIPTION("Realtek Wireless Lan Driver");
-MODULE_AUTHOR("Realtek Semiconductor Corp.");
+MODULE_DESCRIPTION("Realtek Wireless Lan Driver 802.11 AC");
+MODULE_AUTHOR("Brandon Bailey <brandondanielbailey@gmail.com>");
 MODULE_VERSION("DRIVERVERSION");
 
 struct sk_buff_head rtk_skb_mem_q;
 struct u8 *rtk_buf_mem[NR_RECVBUFF];
 
-struct u8	*rtw_get_buf_premem(int index)
-{
+struct u8	*rtw_get_buf_premem(int index) {
 	printk("%s, rtk_buf_mem index : %d\n", __func__, index);
 	return rtk_buf_mem[index];
 }
 
-u16 rtw_rtkm_get_buff_size(void)
-{
+u16 rtw_rtkm_get_buff_size(void) {
 	return MAX_RTKM_RECVBUF_SZ;
 }
 EXPORT_SYMBOL(rtw_rtkm_get_buff_size);
 
-u8 rtw_rtkm_get_nr_recv_skb(void)
-{
+u8 rtw_rtkm_get_nr_recv_skb(void) {
 	return MAX_RTKM_NR_PREALLOC_RECV_SKB;
 }
 EXPORT_SYMBOL(rtw_rtkm_get_nr_recv_skb);
 
-struct sk_buff *rtw_alloc_skb_premem(u16 in_size)
-{
+struct sk_buff *rtw_alloc_skb_premem(u16 in_size) {
 	struct sk_buff *skb = NULL;
 
 	if (in_size > MAX_RTKM_RECVBUF_SZ) {
@@ -60,8 +42,7 @@ struct sk_buff *rtw_alloc_skb_premem(u16 in_size)
 }
 EXPORT_SYMBOL(rtw_alloc_skb_premem);
 
-int rtw_free_skb_premem(struct sk_buff *pskb)
-{
+int rtw_free_skb_premem(struct sk_buff *pskb) {
 	if (!pskb)
 		return -1;
 
@@ -76,8 +57,7 @@ int rtw_free_skb_premem(struct sk_buff *pskb)
 }
 EXPORT_SYMBOL(rtw_free_skb_premem);
 
-static int __init rtw_mem_init(void)
-{
+static int __init rtw_mem_init(void) {
 	int i;
 	SIZE_PTR tmpaddr = 0;
 	SIZE_PTR alignment = 0;
@@ -114,8 +94,7 @@ static int __init rtw_mem_init(void)
 
 }
 
-static void __exit rtw_mem_exit(void)
-{
+static void __exit rtw_mem_exit(void) {
 	if (skb_queue_len(&rtk_skb_mem_q))
 		printk("%s, rtk_skb_mem_q len : %d\n", __func__, skb_queue_len(&rtk_skb_mem_q));
 

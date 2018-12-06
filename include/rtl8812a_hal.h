@@ -1,6 +1,6 @@
 /******************************************************************************
  *
- * Copyright(c) 2007 - 2017 Realtek Corporation.
+ * Copyright(c) 2007 - 2011 Realtek Corporation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
@@ -11,7 +11,12 @@
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
  * more details.
  *
- *****************************************************************************/
+ * You should have received a copy of the GNU General Public License along with
+ * this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110, USA
+ *
+ *
+ ******************************************************************************/
 #ifndef __RTL8812A_HAL_H__
 #define __RTL8812A_HAL_H__
 
@@ -31,8 +36,40 @@
 #include "Hal8812PhyReg.h"
 #include "Hal8812PhyCfg.h"
 #ifdef DBG_CONFIG_ERROR_DETECT
-#include "rtl8812a_sreset.h"
+	#include "rtl8812a_sreset.h"
 #endif
+
+
+/* ---------------------------------------------------------------------
+ *		RTL8812AU From header
+ * --------------------------------------------------------------------- */
+#define RTL8812_FW_IMG						"rtl8812a/FW_NIC.bin"
+#define RTL8812_FW_WW_IMG				"rtl8812a/FW_WoWLAN.bin"
+#define RTL8812_PHY_REG					"rtl8812a/PHY_REG.txt"
+#define RTL8812_PHY_RADIO_A				"rtl8812a/RadioA.txt"
+#define RTL8812_PHY_RADIO_B				"rtl8812a/RadioB.txt"
+#define RTL8812_TXPWR_TRACK				"rtl8812a/TxPowerTrack.txt"
+#define RTL8812_AGC_TAB					"rtl8812a/AGC_TAB.txt"
+#define RTL8812_PHY_MACREG 				"rtl8812a/MAC_REG.txt"
+#define RTL8812_PHY_REG_PG					"rtl8812a/PHY_REG_PG.txt"
+#define RTL8812_PHY_REG_MP 				"rtl8812a/PHY_REG_MP.txt"
+#define RTL8812_TXPWR_LMT					"rtl8812a/TXPWR_LMT.txt"
+#define RTL8812_WIFI_ANT_ISOLATION		"rtl8812a/wifi_ant_isolation.txt"
+
+/* ---------------------------------------------------------------------
+ *		RTL8821U From file
+ * --------------------------------------------------------------------- */
+#define RTL8821_FW_IMG						"rtl8821a/FW_NIC.bin"
+#define RTL8821_FW_WW_IMG				"rtl8821a/FW_WoWLAN.bin"
+#define RTL8821_PHY_REG					"rtl8821a/PHY_REG.txt"
+#define RTL8821_PHY_RADIO_A				"rtl8821a/RadioA.txt"
+#define RTL8821_PHY_RADIO_B				"rtl8821a/RadioB.txt"
+#define RTL8821_TXPWR_TRACK				"rtl8821a/TxPowerTrack.txt"
+#define RTL8821_AGC_TAB					"rtl8821a/AGC_TAB.txt"
+#define RTL8821_PHY_MACREG 				"rtl8821a/MAC_REG.txt"
+#define RTL8821_PHY_REG_PG					"rtl8821a/PHY_REG_PG.txt"
+#define RTL8821_PHY_REG_MP 				"rtl8821a/PHY_REG_MP.txt"
+#define RTL8821_TXPWR_LMT					"rtl8821a/TXPWR_LMT.txt"
 
 /* ---------------------------------------------------------------------
  *		RTL8812 Power Configuration CMDs for PCIe interface
@@ -123,7 +160,7 @@ typedef struct _RT_FIRMWARE_8812 {
 #define MAX_RX_DMA_BUFFER_SIZE_8812	0x3E80 /* RX 16K */
 
 #ifdef CONFIG_WOWLAN
-	#define RESV_FMWF	(WKFMCAM_SIZE * MAX_WKFM_CAM_NUM) /* 16 entries, for each is 24 bytes*/
+	#define RESV_FMWF	(WKFMCAM_SIZE * MAX_WKFM_NUM) /* 16 entries, for each is 24 bytes*/
 #else
 	#define RESV_FMWF	0
 #endif
@@ -138,11 +175,9 @@ typedef struct _RT_FIRMWARE_8812 {
 #define BCNQ_PAGE_NUM_8812		0x07
 
 /* For WoWLan , more reserved page
- * ARP Rsp:1, RWC:1, GTK Info:1,GTK RSP:1,GTK EXT MEM:1, AOAC rpt: 1,PNO: 6
- * NS offload: 1 NDP info: 1
- */
+ * ARP Rsp:1, RWC:1, GTK Info:1,GTK RSP:1,GTK EXT MEM:1, PNO: 6 */
 #ifdef CONFIG_WOWLAN
-	#define WOWLAN_PAGE_NUM_8812	0x08
+	#define WOWLAN_PAGE_NUM_8812	0x05
 #else
 	#define WOWLAN_PAGE_NUM_8812	0x00
 #endif
@@ -229,11 +264,11 @@ typedef struct _RT_FIRMWARE_8812 {
 #define	EFUSE_HIDDEN_812AU_VN				3
 
 #if 0
-#define EFUSE_REAL_CONTENT_LEN_JAGUAR		1024
-#define HWSET_MAX_SIZE_JAGUAR					1024
+	#define EFUSE_REAL_CONTENT_LEN_JAGUAR		1024
+	#define HWSET_MAX_SIZE_JAGUAR					1024
 #else
-#define EFUSE_REAL_CONTENT_LEN_JAGUAR		512
-#define HWSET_MAX_SIZE_JAGUAR					512
+	#define EFUSE_REAL_CONTENT_LEN_JAGUAR		512
+	#define HWSET_MAX_SIZE_JAGUAR					512
 #endif
 
 #define EFUSE_MAX_BANK_8812A					2
@@ -248,6 +283,13 @@ typedef struct _RT_FIRMWARE_8812 {
  * | 2byte|----8bytes----|1byte|--7bytes--|  */ /* 92D */
 #define EFUSE_OOB_PROTECT_BYTES_JAGUAR		18	/* PG data exclude header, dummy 7 bytes frome CP test and reserved 1byte. */
 #define EFUSE_PROTECT_BYTES_BANK_JAGUAR		16
+/* Added for different registry settings to adjust TxPwr index. added by Roger, 2010.03.09. */
+typedef enum _TX_PWR_PERCENTAGE {
+	TX_PWR_PERCENTAGE_0 = 0x01, /* 12.5% */
+	TX_PWR_PERCENTAGE_1 = 0x02, /* 25% */
+	TX_PWR_PERCENTAGE_2 = 0x04, /* 50% */
+	TX_PWR_PERCENTAGE_3 = 0x08, /* 100%, default target output power.	 */
+} TX_PWR_PERCENTAGE;
 
 #define INCLUDE_MULTI_FUNC_BT(_Adapter)	(GET_HAL_DATA(_Adapter)->MultiFunc & RT_MULTI_FUNC_BT)
 #define INCLUDE_MULTI_FUNC_GPS(_Adapter)	(GET_HAL_DATA(_Adapter)->MultiFunc & RT_MULTI_FUNC_GPS)
@@ -255,29 +297,16 @@ typedef struct _RT_FIRMWARE_8812 {
 /* #define IS_MULTI_FUNC_CHIP(_Adapter)	(((((PHAL_DATA_TYPE)(_Adapter->HalData))->MultiFunc) & (RT_MULTI_FUNC_BT|RT_MULTI_FUNC_GPS)) ? _TRUE : _FALSE) */
 
 /* #define RT_IS_FUNC_DISABLED(__pAdapter, __FuncBits) ( (__pAdapter)->DisabledFunctions & (__FuncBits) ) */
-#define HAL_EFUSE_MEMORY
 
-/* ********************************************************
- *			EFUSE for BT definition
- * ******************************************************** */
-#define BANK_NUM			2
-#define EFUSE_BT_REAL_BANK_CONTENT_LEN	512
-#define EFUSE_BT_REAL_CONTENT_LEN	\
-	(EFUSE_BT_REAL_BANK_CONTENT_LEN * BANK_NUM)
-#define EFUSE_BT_MAP_LEN		1024	/* 1k bytes */
-#define EFUSE_BT_MAX_SECTION		(EFUSE_BT_MAP_LEN / 8)
-#define EFUSE_PROTECT_BYTES_BANK	16
-
-#define AVAILABLE_EFUSE_ADDR(addr)	(addr < EFUSE_BT_REAL_CONTENT_LEN)
 
 #ifdef CONFIG_FILE_FWIMG
-extern char *rtw_fw_file_path;
-#ifdef CONFIG_WOWLAN
-extern char *rtw_fw_wow_file_path;
-#endif
-#ifdef CONFIG_MP_INCLUDED
-extern char *rtw_fw_mp_bt_file_path;
-#endif
+	extern char *rtw_fw_file_path;
+	#ifdef CONFIG_WOWLAN
+		extern char *rtw_fw_wow_file_path;
+	#endif
+	#ifdef CONFIG_MP_INCLUDED
+		extern char *rtw_fw_mp_bt_file_path;
+	#endif
 #endif
 
 
@@ -308,16 +337,14 @@ void	Hal_ReadPAType_8821A(PADAPTER Adapter, u8 *PROMContent, BOOLEAN AutoloadFai
 void	Hal_ReadRFEType_8812A(PADAPTER Adapter, u8 *PROMContent, BOOLEAN AutoloadFail);
 void	Hal_EfuseParseBTCoexistInfo8812A(PADAPTER Adapter, u8 *hwinfo, BOOLEAN AutoLoadFail);
 void	hal_ReadUsbType_8812AU(PADAPTER Adapter, u8 *PROMContent, BOOLEAN AutoloadFail);
-#ifdef CONFIG_MP_INCLUDED
 int	FirmwareDownloadBT(PADAPTER Adapter, PRT_MP_FIRMWARE pFirmware);
-#endif
 void	Hal_ReadRemoteWakeup_8812A(PADAPTER padapter, u8 *hwinfo, BOOLEAN AutoLoadFail);
 
 BOOLEAN HalDetectPwrDownMode8812(PADAPTER Adapter);
 void Hal_EfuseParseKFreeData_8821A(PADAPTER Adapter, u8 *PROMContent, BOOLEAN AutoloadFail);
 
 #ifdef CONFIG_WOWLAN
-void Hal_DetectWoWMode(PADAPTER pAdapter);
+	void Hal_DetectWoWMode(PADAPTER pAdapter);
 #endif /* CONFIG_WOWLAN */
 
 void _InitBeaconParameters_8812A(PADAPTER padapter);
@@ -330,6 +357,7 @@ void SetHwReg8812A(PADAPTER padapter, u8 variable, u8 *pval);
 void GetHwReg8812A(PADAPTER padapter, u8 variable, u8 *pval);
 u8 SetHalDefVar8812A(PADAPTER padapter, HAL_DEF_VARIABLE variable, void *pval);
 u8 GetHalDefVar8812A(PADAPTER padapter, HAL_DEF_VARIABLE variable, void *pval);
+s32 c2h_id_filter_ccx_8812a(u8 *buf);
 void rtl8812_set_hal_ops(struct hal_ops *pHalFunc);
 void init_hal_spec_8812a(_adapter *adapter);
 void init_hal_spec_8821a(_adapter *adapter);
@@ -341,13 +369,12 @@ void rtl8812_start_thread(PADAPTER padapter);
 void rtl8812_stop_thread(PADAPTER padapter);
 
 #ifdef CONFIG_PCI_HCI
-BOOLEAN	InterruptRecognized8812AE(PADAPTER Adapter);
-VOID	UpdateInterruptMask8812AE(PADAPTER Adapter, u32 AddMSR, u32 AddMSR1, u32 RemoveMSR, u32 RemoveMSR1);
-VOID	InitTRXDescHwAddress8812AE(PADAPTER Adapter);
+	BOOLEAN	InterruptRecognized8812AE(PADAPTER Adapter);
+	VOID	UpdateInterruptMask8812AE(PADAPTER Adapter, u32 AddMSR, u32 AddMSR1, u32 RemoveMSR, u32 RemoveMSR1);
 #endif
 
 #ifdef CONFIG_BT_COEXIST
-void rtl8812a_combo_card_WifiOnlyHwInit(PADAPTER Adapter);
+	void rtl8812a_combo_card_WifiOnlyHwInit(PADAPTER Adapter);
 #endif
 
 VOID

@@ -1,18 +1,3 @@
-/******************************************************************************
- *
- * Copyright(c) 2016 - 2017 Realtek Corporation. All rights reserved.
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of version 2 of the GNU General Public License as
- * published by the Free Software Foundation.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- ******************************************************************************/
-
 #ifndef _HAL_H2CEXTRAINFO_H2C_C2H_NIC_H_
 #define _HAL_H2CEXTRAINFO_H2C_C2H_NIC_H_
 #define PHY_PARAMETER_INFO_GET_LENGTH(__pExtraInfo)    LE_BITS_TO_4BYTE(__pExtraInfo + 0X00, 0, 8)

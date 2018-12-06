@@ -1,6 +1,6 @@
 /******************************************************************************
  *
- * Copyright(c) 2007 - 2017 Realtek Corporation.
+ * Copyright(c) 2007 - 2011 Realtek Corporation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
@@ -11,7 +11,12 @@
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
  * more details.
  *
- *****************************************************************************/
+ * You should have received a copy of the GNU General Public License along with
+ * this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110, USA
+ *
+ *
+ ******************************************************************************/
 #ifndef _RTW_MP_H_
 #define _RTW_MP_H_
 
@@ -212,18 +217,14 @@ typedef struct _MPT_CONTEXT {
 	/* The Value of IO operation is depend of MptActType. */
 	ULONG			MptIoValue;
 	/* The RfPath of IO operation is depend of MptActType. */
-
-	ULONG			mpt_rf_path;
-
+	ULONG			MptRfPath;
 
 	WIRELESS_MODE		MptWirelessModeToSw;	/* Wireless mode to switch. */
 	u8			MptChannelToSw;	/* Channel to switch. */
 	u8			MptInitGainToSet;	/* Initial gain to set. */
 	/* ULONG			bMptAntennaA;		 */ /* TRUE if we want to use antenna A. */
 	ULONG			MptBandWidth;		/* bandwidth to switch. */
-
-	ULONG			mpt_rate_index;/* rate index. */
-
+	ULONG			MptRateIndex;		/* rate index. */
 	/* Register value kept for Single Carrier Tx test. */
 	u8			btMpCckTxPower;
 	/* Register value kept for Single Carrier Tx test. */
@@ -242,19 +243,13 @@ typedef struct _MPT_CONTEXT {
 
 	BOOLEAN			bCckContTx;	/* TRUE if we are in CCK Continuous Tx test. */
 	BOOLEAN			bOfdmContTx;	/* TRUE if we are in OFDM Continuous Tx test. */
-		/* TRUE if we have start Continuous Tx test. */
-	BOOLEAN			is_start_cont_tx;
-
+	BOOLEAN			bStartContTx;	/* TRUE if we have start Continuous Tx test. */
 	/* TRUE if we are in Single Carrier Tx test. */
 	BOOLEAN			bSingleCarrier;
 	/* TRUE if we are in Carrier Suppression Tx Test. */
-
-	BOOLEAN			is_carrier_suppression;
-
+	BOOLEAN			bCarrierSuppression;
 	/* TRUE if we are in Single Tone Tx test. */
-
-	BOOLEAN			is_single_tone;
-
+	BOOLEAN			bSingleTone;
 
 	/* ACK counter asked by K.Y.. */
 	BOOLEAN			bMptEnableAckCounter;
@@ -292,6 +287,41 @@ typedef struct _MPT_CONTEXT {
 } MPT_CONTEXT, *PMPT_CONTEXT;
 /* #endif */
 
+/* E-Fuse */
+#ifdef CONFIG_RTL8188E
+	#define EFUSE_MAP_SIZE		512
+#endif
+#if defined(CONFIG_RTL8812A) || defined(CONFIG_RTL8821A) || defined(CONFIG_RTL8814A)
+	#define EFUSE_MAP_SIZE		512
+#endif
+#ifdef CONFIG_RTL8192E
+	#define EFUSE_MAP_SIZE		512
+#endif
+#ifdef CONFIG_RTL8723B
+	#define EFUSE_MAP_SIZE		512
+#endif
+#ifdef CONFIG_RTL8814A
+	#define EFUSE_MAP_SIZE		512
+#endif
+#ifdef CONFIG_RTL8703B
+	#define EFUSE_MAP_SIZE		512
+#endif
+#ifdef CONFIG_RTL8723D
+	#define EFUSE_MAP_SIZE		512
+#endif
+#ifdef CONFIG_RTL8188F
+	#define EFUSE_MAP_SIZE		512
+#endif
+
+#if defined(CONFIG_RTL8814A) || defined(CONFIG_RTL8822B) || defined(CONFIG_RTL8821C)
+	#define EFUSE_MAX_SIZE		1024
+#elif defined(CONFIG_RTL8188E) || defined(CONFIG_RTL8188F) ||\
+	defined(CONFIG_RTL8703B) || defined(CONFIG_RTL8723D)
+	#define EFUSE_MAX_SIZE		256
+#else
+	#define EFUSE_MAX_SIZE		512
+#endif
+/* end of E-Fuse */
 
 /* #define RTPRIV_IOCTL_MP					( SIOCIWFIRSTPRIV + 0x17) */
 enum {
@@ -330,13 +360,8 @@ enum {
 	EFUSE_FILE,
 	MP_TX,
 	MP_RX,
-	MP_IQK,
-	MP_LCK,
 	MP_HW_TX_MODE,
 	MP_GET_TXPOWER_INX,
-	MP_CUSTOMER_STR,
-	MP_PWRLMT,
-	MP_PWRBYRATE,
 	MP_NULL,
 	MP_SetBT,
 #ifdef CONFIG_APPEND_VENDOR_IE_ENABLE
@@ -441,10 +466,7 @@ struct mp_priv {
 	BOOLEAN bTxBufCkFail;
 	BOOLEAN bRTWSmbCfg;
 	BOOLEAN bloopback;
-	BOOLEAN bloadefusemap;
-
-	MPT_CONTEXT	mpt_ctx;
-
+	MPT_CONTEXT MptCtx;
 
 	u8		*TXradomBuffer;
 };
@@ -486,28 +508,28 @@ typedef struct _MP_FIRMWARE {
 
 /* Hardware Registers */
 #if 0
-#if 0
-#define IOCMD_CTRL_REG			0x102502C0
-#define IOCMD_DATA_REG			0x102502C4
-#else
-#define IOCMD_CTRL_REG			0x10250370
-#define IOCMD_DATA_REG			0x10250374
-#endif
+	#if 0
+		#define IOCMD_CTRL_REG			0x102502C0
+		#define IOCMD_DATA_REG			0x102502C4
+	#else
+		#define IOCMD_CTRL_REG			0x10250370
+		#define IOCMD_DATA_REG			0x10250374
+	#endif
 
-#define IOCMD_GET_THERMAL_METER		0xFD000028
+	#define IOCMD_GET_THERMAL_METER		0xFD000028
 
-#define IOCMD_CLASS_BB_RF		0xF0
-#define IOCMD_BB_READ_IDX		0x00
-#define IOCMD_BB_WRITE_IDX		0x01
-#define IOCMD_RF_READ_IDX		0x02
-#define IOCMD_RF_WRIT_IDX		0x03
+	#define IOCMD_CLASS_BB_RF		0xF0
+	#define IOCMD_BB_READ_IDX		0x00
+	#define IOCMD_BB_WRITE_IDX		0x01
+	#define IOCMD_RF_READ_IDX		0x02
+	#define IOCMD_RF_WRIT_IDX		0x03
 #endif
 #define BB_REG_BASE_ADDR		0x800
 
 /* MP variables */
 #if 0
-#define _2MAC_MODE_	0
-#define _LOOPBOOK_MODE_	1
+	#define _2MAC_MODE_	0
+	#define _LOOPBOOK_MODE_	1
 #endif
 typedef enum _MP_MODE_ {
 	MP_OFF,
@@ -687,6 +709,17 @@ typedef enum _OFDM_TX_MODE {
 #define RX_PKT_DEST_ADDR	2
 #define RX_PKT_PHY_MATCH	3
 
+#define Mac_OFDM_OK			0x00000000
+#define Mac_OFDM_Fail			0x10000000
+#define Mac_OFDM_FasleAlarm	0x20000000
+#define Mac_CCK_OK				0x30000000
+#define Mac_CCK_Fail			0x40000000
+#define Mac_CCK_FasleAlarm		0x50000000
+#define Mac_HT_OK				0x60000000
+#define Mac_HT_Fail			0x70000000
+#define Mac_HT_FasleAlarm		0x90000000
+#define Mac_DropPacket			0xA0000000
+
 typedef enum _ENCRY_CTRL_STATE_ {
 	HW_CONTROL,		/* hw encryption& decryption */
 	SW_CONTROL,		/* sw encryption& decryption */
@@ -702,16 +735,28 @@ typedef enum	_MPT_TXPWR_DEF {
 	MPT_VHT
 } MPT_TXPWR_DEF;
 
+#ifdef CONFIG_RF_POWER_TRIM
+
+	#if defined(CONFIG_RTL8723B)
+		#define	REG_RF_BB_GAIN_OFFSET	0x7f
+		#define	RF_GAIN_OFFSET_MASK	0xfffff
+	#elif defined(CONFIG_RTL8188E)
+		#define	REG_RF_BB_GAIN_OFFSET	0x55
+		#define	RF_GAIN_OFFSET_MASK	0xfffff
+	#else
+		#define	REG_RF_BB_GAIN_OFFSET	0x55
+		#define	RF_GAIN_OFFSET_MASK	0xfffff
+	#endif /* CONFIG_RTL8723B */
+
+#endif /*CONFIG_RF_POWER_TRIM*/
 
 #define IS_MPT_HT_RATE(_rate)			(_rate >= MPT_RATE_MCS0 && _rate <= MPT_RATE_MCS31)
 #define IS_MPT_VHT_RATE(_rate)			(_rate >= MPT_RATE_VHT1SS_MCS0 && _rate <= MPT_RATE_VHT4SS_MCS9)
 #define IS_MPT_CCK_RATE(_rate)			(_rate >= MPT_RATE_1M && _rate <= MPT_RATE_11M)
 #define IS_MPT_OFDM_RATE(_rate)			(_rate >= MPT_RATE_6M && _rate <= MPT_RATE_54M)
-/*************************************************************************/
-#if 0
-extern struct mp_xmit_frame *alloc_mp_xmitframe(struct mp_priv *pmp_priv);
-extern int free_mp_xmitframe(struct xmit_priv *pxmitpriv, struct mp_xmit_frame *pmp_xmitframe);
-#endif
+/* ***********************************************************************
+ * extern struct mp_xmit_frame *alloc_mp_xmitframe(struct mp_priv *pmp_priv);
+ * extern int free_mp_xmitframe(struct xmit_priv *pxmitpriv, struct mp_xmit_frame *pmp_xmitframe); */
 
 extern s32 init_mp_priv(PADAPTER padapter);
 extern void free_mp_priv(struct mp_priv *pmp_priv);
@@ -752,9 +797,7 @@ u32	GetPhyRxPktCRC32Error(PADAPTER pAdapter);
 s32	SetPowerTracking(PADAPTER padapter, u8 enable);
 void	GetPowerTracking(PADAPTER padapter, u8 *enable);
 u32	mp_query_psd(PADAPTER pAdapter, u8 *data);
-void	rtw_mp_trigger_iqk(PADAPTER padapter);
-void	rtw_mp_trigger_lck(PADAPTER padapter);
-u8 rtw_mp_mode_check(PADAPTER padapter);
+
 
 
 void hal_mpt_SwitchRfSetting(PADAPTER pAdapter);
@@ -770,16 +813,19 @@ s32 hal_mpt_SetThermalMeter(PADAPTER pAdapter, u8 target_ther);
 void hal_mpt_TriggerRFThermalMeter(PADAPTER pAdapter);
 u8 hal_mpt_ReadRFThermalMeter(PADAPTER pAdapter);
 void hal_mpt_GetThermalMeter(PADAPTER pAdapter, u8 *value);
+void hal_mpt_CCKTxPowerAdjustbyIndex(PADAPTER pAdapter, BOOLEAN beven);
 void hal_mpt_SetContinuousTx(PADAPTER pAdapter, u8 bStart);
 void hal_mpt_SetSingleCarrierTx(PADAPTER pAdapter, u8 bStart);
 void hal_mpt_SetSingleToneTx(PADAPTER pAdapter, u8 bStart);
 void hal_mpt_SetCarrierSuppressionTx(PADAPTER pAdapter, u8 bStart);
+void hal_mpt_SetCCKContinuousTx(PADAPTER pAdapter, u8 bStart);
+void hal_mpt_SetOFDMContinuousTx(PADAPTER pAdapter, u8 bStart);
 void mpt_ProSetPMacTx(PADAPTER	Adapter);
+
 void MP_PHY_SetRFPathSwitch(PADAPTER pAdapter , BOOLEAN bMain);
-u8 MP_PHY_QueryRFPathSwitch(PADAPTER pAdapter);
 ULONG mpt_ProQueryCalTxPower(PADAPTER	pAdapter, u8 RfPath);
 void MPT_PwrCtlDM(PADAPTER padapter, u32 bstart);
-u8 mpt_to_mgnt_rate(u32	MptRateIdx);
+u8 MptToMgntRate(u32	MptRateIdx);
 u8 rtw_mpRateParseFunc(PADAPTER pAdapter, u8 *targetStr);
 u32 mp_join(PADAPTER padapter, u8 mode);
 u32 hal_mpt_query_phytxok(PADAPTER	pAdapter);
@@ -822,20 +868,20 @@ void VHT_Delimiter_generator(
 
 
 int rtw_mp_write_reg(struct net_device *dev,
-		struct iw_request_info *info,
-		struct iw_point *wrqu, char *extra);
+		     struct iw_request_info *info,
+		     struct iw_point *wrqu, char *extra);
 int rtw_mp_read_reg(struct net_device *dev,
-		struct iw_request_info *info,
-		struct iw_point *wrqu, char *extra);
+		    struct iw_request_info *info,
+		    struct iw_point *wrqu, char *extra);
 int rtw_mp_write_rf(struct net_device *dev,
-		struct iw_request_info *info,
-		struct iw_point *wrqu, char *extra);
+		    struct iw_request_info *info,
+		    struct iw_point *wrqu, char *extra);
 int rtw_mp_read_rf(struct net_device *dev,
-		struct iw_request_info *info,
-		struct iw_point *wrqu, char *extra);
+		   struct iw_request_info *info,
+		   struct iw_point *wrqu, char *extra);
 int rtw_mp_start(struct net_device *dev,
-		struct iw_request_info *info,
-		struct iw_point *wrqu, char *extra);
+		 struct iw_request_info *info,
+		 struct iw_point *wrqu, char *extra);
 int rtw_mp_stop(struct net_device *dev,
 		struct iw_request_info *info,
 		struct iw_point *wrqu, char *extra);
@@ -843,107 +889,96 @@ int rtw_mp_rate(struct net_device *dev,
 		struct iw_request_info *info,
 		struct iw_point *wrqu, char *extra);
 int rtw_mp_channel(struct net_device *dev,
-		struct iw_request_info *info,
-		struct iw_point *wrqu, char *extra);
+		   struct iw_request_info *info,
+		   struct iw_point *wrqu, char *extra);
 int rtw_mp_bandwidth(struct net_device *dev,
-		struct iw_request_info *info,
-		struct iw_point *wrqu, char *extra);
+		     struct iw_request_info *info,
+		     struct iw_point *wrqu, char *extra);
 int rtw_mp_txpower_index(struct net_device *dev,
-		struct iw_request_info *info,
-		struct iw_point *wrqu, char *extra);
+			 struct iw_request_info *info,
+			 struct iw_point *wrqu, char *extra);
 int rtw_mp_txpower(struct net_device *dev,
-		struct iw_request_info *info,
-		struct iw_point *wrqu, char *extra);
+		   struct iw_request_info *info,
+		   struct iw_point *wrqu, char *extra);
 int rtw_mp_txpower(struct net_device *dev,
-		struct iw_request_info *info,
-		struct iw_point *wrqu, char *extra);
+		   struct iw_request_info *info,
+		   struct iw_point *wrqu, char *extra);
 int rtw_mp_ant_tx(struct net_device *dev,
-		struct iw_request_info *info,
-		struct iw_point *wrqu, char *extra);
+		  struct iw_request_info *info,
+		  struct iw_point *wrqu, char *extra);
 int rtw_mp_ant_rx(struct net_device *dev,
-		struct iw_request_info *info,
-		struct iw_point *wrqu, char *extra);
+		  struct iw_request_info *info,
+		  struct iw_point *wrqu, char *extra);
 int rtw_set_ctx_destAddr(struct net_device *dev,
-		struct iw_request_info *info,
-		struct iw_point *wrqu, char *extra);
+			 struct iw_request_info *info,
+			 struct iw_point *wrqu, char *extra);
 int rtw_mp_ctx(struct net_device *dev,
-		struct iw_request_info *info,
-		struct iw_point *wrqu, char *extra);
+	       struct iw_request_info *info,
+	       struct iw_point *wrqu, char *extra);
 int rtw_mp_disable_bt_coexist(struct net_device *dev,
-		struct iw_request_info *info,
-		union iwreq_data *wrqu, char *extra);
+			      struct iw_request_info *info,
+			      union iwreq_data *wrqu, char *extra);
 int rtw_mp_disable_bt_coexist(struct net_device *dev,
-		struct iw_request_info *info,
-		union iwreq_data *wrqu, char *extra);
+			      struct iw_request_info *info,
+			      union iwreq_data *wrqu, char *extra);
 int rtw_mp_arx(struct net_device *dev,
-		struct iw_request_info *info,
-		struct iw_point *wrqu, char *extra);
+	       struct iw_request_info *info,
+	       struct iw_point *wrqu, char *extra);
 int rtw_mp_trx_query(struct net_device *dev,
-		struct iw_request_info *info,
-		struct iw_point *wrqu, char *extra);
+		     struct iw_request_info *info,
+		     struct iw_point *wrqu, char *extra);
 int rtw_mp_pwrtrk(struct net_device *dev,
-		struct iw_request_info *info,
-		struct iw_point *wrqu, char *extra);
+		  struct iw_request_info *info,
+		  struct iw_point *wrqu, char *extra);
 int rtw_mp_psd(struct net_device *dev,
-		struct iw_request_info *info,
-		struct iw_point *wrqu, char *extra);
+	       struct iw_request_info *info,
+	       struct iw_point *wrqu, char *extra);
 int rtw_mp_thermal(struct net_device *dev,
-		struct iw_request_info *info,
-		struct iw_point *wrqu, char *extra);
+		   struct iw_request_info *info,
+		   struct iw_point *wrqu, char *extra);
 int rtw_mp_reset_stats(struct net_device *dev,
-		struct iw_request_info *info,
-		struct iw_point *wrqu, char *extra);
+		       struct iw_request_info *info,
+		       struct iw_point *wrqu, char *extra);
 int rtw_mp_dump(struct net_device *dev,
 		struct iw_request_info *info,
 		struct iw_point *wrqu, char *extra);
 int rtw_mp_phypara(struct net_device *dev,
-		struct iw_request_info *info,
-		struct iw_point *wrqu, char *extra);
+		   struct iw_request_info *info,
+		   struct iw_point *wrqu, char *extra);
 int rtw_mp_SetRFPath(struct net_device *dev,
-		struct iw_request_info *info,
-		struct iw_point *wrqu, char *extra);
+		     struct iw_request_info *info,
+		     union iwreq_data *wrqu, char *extra);
 int rtw_mp_QueryDrv(struct net_device *dev,
-		struct iw_request_info *info,
-		union iwreq_data *wrqu, char *extra);
+		    struct iw_request_info *info,
+		    union iwreq_data *wrqu, char *extra);
 int rtw_mp_PwrCtlDM(struct net_device *dev,
-		struct iw_request_info *info,
-		struct iw_point *wrqu, char *extra);
+		    struct iw_request_info *info,
+		    struct iw_point *wrqu, char *extra);
 int rtw_mp_getver(struct net_device *dev,
-		struct iw_request_info *info,
-		union iwreq_data *wrqu, char *extra);
+		  struct iw_request_info *info,
+		  union iwreq_data *wrqu, char *extra);
 int rtw_mp_mon(struct net_device *dev,
-		struct iw_request_info *info,
-		union iwreq_data *wrqu, char *extra);
-int rtw_mp_pwrlmt(struct net_device *dev,
-		struct iw_request_info *info,
-		union iwreq_data *wrqu, char *extra);
-int rtw_mp_pwrbyrate(struct net_device *dev,
-		struct iw_request_info *info,
-		union iwreq_data *wrqu, char *extra);
+	       struct iw_request_info *info,
+	       union iwreq_data *wrqu, char *extra);
 int rtw_efuse_mask_file(struct net_device *dev,
-		struct iw_request_info *info,
-		union iwreq_data *wrqu, char *extra);
+			struct iw_request_info *info,
+			union iwreq_data *wrqu, char *extra);
 int rtw_efuse_file_map(struct net_device *dev,
-		struct iw_request_info *info,
-		union iwreq_data *wrqu, char *extra);
+		       struct iw_request_info *info,
+		       union iwreq_data *wrqu, char *extra);
 int rtw_mp_SetBT(struct net_device *dev,
-		struct iw_request_info *info,
-		union iwreq_data *wrqu, char *extra);
+		 struct iw_request_info *info,
+		 union iwreq_data *wrqu, char *extra);
 int rtw_mp_pretx_proc(PADAPTER padapter, u8 bStartTest, char *extra);
 int rtw_mp_tx(struct net_device *dev,
-		struct iw_request_info *info,
-		union iwreq_data *wrqu, char *extra);
+	      struct iw_request_info *info,
+	      union iwreq_data *wrqu, char *extra);
 int rtw_mp_rx(struct net_device *dev,
-		struct iw_request_info *info,
-		union iwreq_data *wrqu, char *extra);
+	      struct iw_request_info *info,
+	      union iwreq_data *wrqu, char *extra);
 int rtw_mp_hwtx(struct net_device *dev,
 		struct iw_request_info *info,
 		union iwreq_data *wrqu, char *extra);
 u8 HwRateToMPTRate(u8 rate);
-int rtw_mp_iqk(struct net_device *dev,
-		 struct iw_request_info *info,
-		 struct iw_point *wrqu, char *extra);
-int rtw_mp_lck(struct net_device *dev, 
-		struct iw_request_info *info, 
-		struct iw_point *wrqu, char *extra);
+
 #endif /* _RTW_MP_H_ */

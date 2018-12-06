@@ -1,6 +1,6 @@
 /******************************************************************************
  *
- * Copyright(c) 2015 - 2017 Realtek Corporation. All rights reserved.
+ * Copyright(c) 2015 - 2016 Realtek Corporation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
@@ -11,8 +11,12 @@
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
  * more details.
  *
+ * You should have received a copy of the GNU General Public License along with
+ * this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110, USA
+ *
+ *
  ******************************************************************************/
-
 #ifndef _HALMAC_2_PLATFORM_H_
 #define _HALMAC_2_PLATFORM_H_
 
@@ -66,9 +70,8 @@ typedef s32	*ps32;
 /*[Driver] config if enable the dbg msg or notl*/
 #define HALMAC_DBG_MSG_ENABLE		1
 
-/*[Driver] define the Rx FIFO expanding mode packet size unit for 8821C and 8822B */
-/*Should be 8 Byte alignment*/
-#define HALMAC_RX_FIFO_EXPANDING_MODE_PKT_SIZE	48 /*Bytes*/
+/*[Driver] define the Platform SDIO Bus CLK */
+#define PLATFORM_SD_CLK	50000000 /*50MHz*/
 
 /*[Driver] provide the type mutex*/
 /* Mutex type */

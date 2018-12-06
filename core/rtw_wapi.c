@@ -1,17 +1,3 @@
-/******************************************************************************
- *
- * Copyright(c) 2016 - 2017 Realtek Corporation.
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of version 2 of the GNU General Public License as
- * published by the Free Software Foundation.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- *****************************************************************************/
 #ifdef CONFIG_WAPI_SUPPORT
 
 #include <linux/unistd.h>
@@ -175,12 +161,14 @@ WapiGetEntryForCamWrite(_adapter *padapter, u8 *pMacAddr, u8 KID, BOOLEAN IsMsk)
 
 	/*
 		if(RTIsListEmpty(&pWapiInfo->wapiCamIdleList)) {
+			RT_TRACE(COMP_SEC,DBG_LOUD,("No Entry for wapi!!!\n"));
 			return 0;
 		}
 
 		pEntry = (PRT_WAPI_CAM_ENTRY)RTRemoveHeadList(&pWapiInfo->wapiCamIdleList);
 		RTInsertTailList(&pWapiInfo->wapiCamUsedList, &pEntry->list);
 
+		RT_TRACE(COMP_SEC,DBG_LOUD,("<====WapiGetCamEntry(),Get Entry Idx:%d.but we just return 4 for test\n",pEntry->entry_idx));
 
 		return pEntry->entry_idx;*/
 }
@@ -212,6 +200,7 @@ u8 WapiGetEntryForCamClear(_adapter *padapter, u8 *pPeerMac, u8 keyid, u8 IsMsk)
 	return 0xff;
 	/*
 		if(RTIsListEmpty(&pWapiInfo->wapiCamUsedList)) {
+			RT_TRACE(COMP_SEC,DBG_LOUD,("No Entry for wapi!!!\n"));
 			return FALSE;
 		}
 
@@ -382,7 +371,7 @@ u8 rtw_wapi_is_wai_packet(_adapter *padapter, u8 *pkt_data)
 		return 0;
 	}
 
-	pTaddr = get_addr2_ptr(pkt_data);
+	pTaddr = GetAddr2Ptr(pkt_data);
 	if (list_empty(&pWapiInfo->wapiSTAUsedList))
 		bFind = false;
 	else {
@@ -437,7 +426,7 @@ void rtw_wapi_update_info(_adapter *padapter, union recv_frame *precv_frame)
 	else
 		precv_hdr->UserPriority = 0;
 
-	pTA = get_addr2_ptr(ptr);
+	pTA = GetAddr2Ptr(ptr);
 	_rtw_memcpy((u8 *)precv_hdr->WapiSrcAddr, pTA, 6);
 	pRecvPN = ptr + precv_hdr->attrib.hdrlen + 2;
 	_rtw_memcpy((u8 *)precv_hdr->WapiTempPN, pRecvPN, 16);

@@ -1,18 +1,3 @@
-/******************************************************************************
- *
- * Copyright(c) 2016 - 2017 Realtek Corporation. All rights reserved.
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of version 2 of the GNU General Public License as
- * published by the Free Software Foundation.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- ******************************************************************************/
-
 #ifndef __INC_HALMAC_REG_8822B_H
 #define __INC_HALMAC_REG_8822B_H
 
@@ -107,7 +92,6 @@
 #define REG_FW_DBG6_8822B 0x10F8
 #define REG_FW_DBG7_8822B 0x10FC
 #define REG_CR_8822B 0x0100
-#define REG_PKT_BUFF_ACCESS_CTRL_8822B 0x0106
 #define REG_TSF_CLK_STATE_8822B 0x0108
 #define REG_TXDMA_PQ_MAP_8822B 0x010C
 #define REG_TRXFF_BNDY_8822B 0x0114
@@ -306,8 +290,6 @@
 #define REG_H2CQ_TXBD_NUM_8822B 0x1328
 #define REG_H2CQ_TXBD_IDX_8822B 0x132C
 #define REG_H2CQ_CSR_8822B 0x1330
-#define REG_CHANGE_PCIE_SPEED_8822B 0x1350
-#define REG_OLD_DEHANG_8822B 0x13F4
 #define REG_Q0_INFO_8822B 0x0400
 #define REG_Q1_INFO_8822B 0x0404
 #define REG_Q2_INFO_8822B 0x0408
@@ -561,7 +543,6 @@
 #define REG_LBDLY_8822B 0x0660
 #define REG_WMAC_BACAM_RPMEN_8822B 0x0661
 #define REG_TX_RX_8822B 0x0662
-#define REG_WMAC_BITMAP_CTL_8822B 0x0663
 #define REG_RXERR_RPT_8822B 0x0664
 #define REG_WMAC_TRXPTCL_CTL_8822B 0x0668
 #define REG_CAMCMD_8822B 0x0670
@@ -621,17 +602,6 @@
 #define REG_BSSID4_8822B 0x1648
 #define REG_NOA_REPORT_8822B 0x1650
 #define REG_PWRBIT_SETTING_8822B 0x1660
-#define REG_WMAC_MU_BF_OPTION_8822B 0x167C
-#define REG_WMAC_MU_ARB_8822B 0x167E
-#define REG_WMAC_MU_OPTION_8822B 0x167F
-#define REG_WMAC_MU_BF_CTL_8822B 0x1680
-#define REG_WMAC_MU_BFRPT_PARA_8822B 0x1682
-#define REG_WMAC_ASSOCIATED_MU_BFMEE2_8822B 0x1684
-#define REG_WMAC_ASSOCIATED_MU_BFMEE3_8822B 0x1686
-#define REG_WMAC_ASSOCIATED_MU_BFMEE4_8822B 0x1688
-#define REG_WMAC_ASSOCIATED_MU_BFMEE5_8822B 0x168A
-#define REG_WMAC_ASSOCIATED_MU_BFMEE6_8822B 0x168C
-#define REG_WMAC_ASSOCIATED_MU_BFMEE7_8822B 0x168E
 #define REG_TRANSMIT_ADDRSS_0_8822B 0x16A0
 #define REG_TRANSMIT_ADDRSS_1_8822B 0x16A8
 #define REG_TRANSMIT_ADDRSS_2_8822B 0x16B0

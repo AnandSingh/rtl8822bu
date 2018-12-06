@@ -1,7 +1,7 @@
 /******************************************************************************
  *
  * Copyright(c) 2007 - 2011 Realtek Corporation. All rights reserved.
- *
+ *                                        
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
  * published by the Free Software Foundation.
@@ -21,16 +21,7 @@
 #ifndef	__ODM_RTL8822B_H__
 #define __ODM_RTL8822B_H__
 
-void
-phydm_somlrxhp_setting(
-	struct 	PHY_DM_STRUCT		*p_dm_odm,
-	boolean switch_soml
-);
-
-void
-phydm_hwsetting_8822b(
-	struct PHY_DM_STRUCT		*p_dm_odm
-);
 
 #endif	/* #define __ODM_RTL8822B_H__ */
 #endif
+

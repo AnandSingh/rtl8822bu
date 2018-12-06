@@ -1,6 +1,6 @@
 /******************************************************************************
  *
- * Copyright(c) 2007 - 2017 Realtek Corporation.
+ * Copyright(c) 2007 - 2011 Realtek Corporation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
@@ -11,7 +11,12 @@
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
  * more details.
  *
- *****************************************************************************/
+ * You should have received a copy of the GNU General Public License along with
+ * this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110, USA
+ *
+ *
+ ******************************************************************************/
 #define _HAL_PHY_C_
 
 #include <drv_types.h>
@@ -115,6 +120,9 @@ PHY_RFShadowCompare(
 		if (RF_Shadow[eRFPath][Offset].Value != reg) {
 			/* Locate error position. */
 			RF_Shadow[eRFPath][Offset].ErrorOrNot = _TRUE;
+			/* RT_TRACE(COMP_INIT, DBG_LOUD, */
+			/* ("PHY_RFShadowCompare RF-%d Addr%02lx Err = %05lx\n", */
+			/* eRFPath, Offset, reg)); */
 		}
 		return RF_Shadow[eRFPath][Offset].ErrorOrNot ;
 	}
@@ -134,6 +142,9 @@ PHY_RFShadowRecorver(
 		if (RF_Shadow[eRFPath][Offset].Recorver == _TRUE) {
 			rtw_hal_write_rfreg(Adapter, eRFPath, Offset, bRFRegOffsetMask,
 					    RF_Shadow[eRFPath][Offset].Value);
+			/* RT_TRACE(COMP_INIT, DBG_LOUD, */
+			/* ("PHY_RFShadowRecorver RF-%d Addr%02lx=%05lx", */
+			/* eRFPath, Offset, RF_Shadow[eRFPath][Offset].Value)); */
 		}
 	}
 

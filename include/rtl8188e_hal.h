@@ -1,6 +1,6 @@
 /******************************************************************************
  *
- * Copyright(c) 2007 - 2017 Realtek Corporation.
+ * Copyright(c) 2007 - 2011 Realtek Corporation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
@@ -11,7 +11,12 @@
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
  * more details.
  *
- *****************************************************************************/
+ * You should have received a copy of the GNU General Public License along with
+ * this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110, USA
+ *
+ *
+ ******************************************************************************/
 #ifndef __RTL8188E_HAL_H__
 #define __RTL8188E_HAL_H__
 
@@ -32,6 +37,29 @@
 #ifdef DBG_CONFIG_ERROR_DETECT
 	#include "rtl8188e_sreset.h"
 #endif
+
+#if 0
+	/* Fw Array */
+	#define Rtl8188E_FwImageArray				Rtl8188EFwImgArray
+	#define Rtl8188E_FWImgArrayLength			Rtl8188EFWImgArrayLength
+	#ifdef CONFIG_WOWLAN
+		#define Rtl8188E_FwWoWImageArray			Array_MP_8188E_FW_WoWLAN
+		#define Rtl8188E_FwWoWImgArrayLength		ArrayLength_MP_8188E_FW_WoWLAN
+	#endif /* CONFIG_WOWLAN */
+#endif
+
+
+#define RTL8188E_FW_IMG					"rtl8188e/FW_NIC.bin"
+#define RTL8188E_FW_WW_IMG				"rtl8188e/FW_WoWLAN.bin"
+#define RTL8188E_PHY_REG					"rtl8188e/PHY_REG.txt"
+#define RTL8188E_PHY_RADIO_A				"rtl8188e/RadioA.txt"
+#define RTL8188E_PHY_RADIO_B				"rtl8188e/RadioB.txt"
+#define RTL8188E_TXPWR_TRACK				"rtl8188e/TxPowerTrack.txt"
+#define RTL8188E_AGC_TAB					"rtl8188e/AGC_TAB.txt"
+#define RTL8188E_PHY_MACREG 				"rtl8188e/MAC_REG.txt"
+#define RTL8188E_PHY_REG_PG				"rtl8188e/PHY_REG_PG.txt"
+#define RTL8188E_PHY_REG_MP 				"rtl8188e/PHY_REG_MP.txt"
+#define RTL8188E_TXPWR_LMT				"rtl8188e/TXPWR_LMT.txt"
 
 /* --------------------------------------------------------------------- */
 /*		RTL8188E Power Configuration CMDs for USB/SDIO/PCIE interfaces */
@@ -110,10 +138,14 @@ typedef struct _RT_8188E_FIRMWARE_HDR {
 
 
 /* #define MAX_RX_DMA_BUFFER_SIZE_88E	      0x2400 */ /* 9k for 88E nornal chip , */ /* MaxRxBuff=10k-max(TxReportSize(64*8), WOLPattern(16*24)) */
-#define RX_DMA_SIZE_88E(__Adapter) ((!IS_VENDOR_8188E_I_CUT_SERIES(__Adapter))?0x2800:0x4000)
+#ifdef CONFIG_USB_HCI
+	#define RX_DMA_SIZE_88E(__Adapter) 0x2800 /* no cut difference */
+#else
+	#define RX_DMA_SIZE_88E(__Adapter) ((!IS_VENDOR_8188E_I_CUT_SERIES(__Adapter)) ? 0x2800 : 0x4000)
+#endif
 
 #ifdef CONFIG_WOWLAN
-	#define RESV_FMWF	(WKFMCAM_SIZE * MAX_WKFM_CAM_NUM) /* 16 entries, for each is 24 bytes*/
+	#define RESV_FMWF	(WKFMCAM_SIZE * MAX_WKFM_NUM) /* 16 entries, for each is 24 bytes*/
 #else
 	#define RESV_FMWF	0
 #endif
@@ -129,7 +161,7 @@ typedef struct _RT_8188E_FIRMWARE_HDR {
  * must reserved about 7 pages for LPS =>  176-7 = 169 (0xA9)
  * 2*BCN / 1*ps-poll / 1*null-data /1*prob_rsp /1*QOS null-data /1*BT QOS null-data  */
 
-#define BCNQ_PAGE_NUM_88E		0x09
+#define BCNQ_PAGE_NUM_88E		0x08
 
 /* For WoWLan , more reserved page */
 #ifdef CONFIG_WOWLAN
@@ -143,7 +175,11 @@ Tx FIFO Size : previous CUT:22K /I_CUT after:32KB
 Tx page Size : 128B
 Total page numbers : 176(0xB0) / 256(0x100)
 */
-#define TOTAL_PAGE_NUMBER_88E(_Adapter)	((IS_VENDOR_8188E_I_CUT_SERIES(_Adapter)?0x100:0xB0) - 1)/* must reserved 1 page for dma issue */
+#ifdef CONFIG_USB_HCI
+	#define TOTAL_PAGE_NUMBER_88E(_Adapter) (0xB0 - 1) /* no cut difference */
+#else
+	#define TOTAL_PAGE_NUMBER_88E(_Adapter)	((IS_VENDOR_8188E_I_CUT_SERIES(_Adapter) ? 0x100 : 0xB0) - 1)/* must reserved 1 page for dma issue */
+#endif
 #define TX_TOTAL_PAGE_NUMBER_88E(_Adapter)	(TOTAL_PAGE_NUMBER_88E(_Adapter) - BCNQ_PAGE_NUM_88E - WOWLAN_PAGE_NUM_88E)
 #define TX_PAGE_BOUNDARY_88E(_Adapter)		(TX_TOTAL_PAGE_NUMBER_88E(_Adapter) + 1) /* beacon header start address */
 

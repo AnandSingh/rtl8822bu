@@ -1,15 +1,6 @@
 /******************************************************************************
  *
- * Copyright(c) 2009-2010 - 2017 Realtek Corporation.
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of version 2 of the GNU General Public License as
- * published by the Free Software Foundation.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
+ * Copyright(c) 2009-2010  Realtek Corporation.
  *
  *****************************************************************************/
 
@@ -143,10 +134,13 @@ static const struct ieee80211_regdomain rtw_regdom_14 = {
 static struct rtw_regulatory *rtw_regd;
 #endif
 
+static bool _rtw_is_radar_freq(u16 center_freq) {
+	return center_freq >= 5260 && center_freq <= 5700;
+}
+
 #if 0 /* not_yet */
 static void _rtw_reg_apply_beaconing_flags(struct wiphy *wiphy,
-		enum nl80211_reg_initiator initiator)
-{
+        enum nl80211_reg_initiator initiator) {
 	enum nl80211_band band;
 	struct ieee80211_supported_band *sband;
 	const struct ieee80211_reg_rule *reg_rule;
@@ -155,7 +149,7 @@ static void _rtw_reg_apply_beaconing_flags(struct wiphy *wiphy,
 	u32 bandwidth = 0;
 	int r;
 
-	for (band = 0; band < IEEE80211_NUM_BANDS; band++) {
+	for (band = 0; band < NUM_NL80211_BANDS; band++) {
 
 		if (!wiphy->bands[band])
 			continue;
@@ -164,12 +158,12 @@ static void _rtw_reg_apply_beaconing_flags(struct wiphy *wiphy,
 
 		for (i = 0; i < sband->n_channels; i++) {
 			ch = &sband->channels[i];
-			if (rtw_is_dfs_ch(ch->hw_value) ||
-			    (ch->flags & IEEE80211_CHAN_RADAR))
+			if (_rtw_is_radar_freq(ch->center_freq) ||
+			        (ch->flags & IEEE80211_CHAN_RADAR))
 				continue;
 			if (initiator == NL80211_REGDOM_SET_BY_COUNTRY_IE) {
 				r = freq_reg_info(wiphy, ch->center_freq,
-						  bandwidth, &reg_rule);
+				                  bandwidth, &reg_rule);
 				if (r)
 					continue;
 
@@ -185,14 +179,14 @@ static void _rtw_reg_apply_beaconing_flags(struct wiphy *wiphy,
 				if (!(reg_rule->flags & NL80211_RRF_NO_IBSS))
 					ch->flags &= ~IEEE80211_CHAN_NO_IBSS;
 				if (!
-				    (reg_rule->flags &
-				     NL80211_RRF_PASSIVE_SCAN))
+				        (reg_rule->flags &
+				         NL80211_RRF_PASSIVE_SCAN))
 					ch->flags &=
-						~IEEE80211_CHAN_PASSIVE_SCAN;
+					    ~IEEE80211_CHAN_PASSIVE_SCAN;
 			} else {
 				if (ch->beacon_found)
 					ch->flags &= ~(IEEE80211_CHAN_NO_IBSS |
-						IEEE80211_CHAN_PASSIVE_SCAN);
+					               IEEE80211_CHAN_PASSIVE_SCAN);
 			}
 		}
 	}
@@ -200,9 +194,8 @@ static void _rtw_reg_apply_beaconing_flags(struct wiphy *wiphy,
 
 /* Allows active scan scan on Ch 12 and 13 */
 static void _rtw_reg_apply_active_scan_flags(struct wiphy *wiphy,
-		enum nl80211_reg_initiator
-		initiator)
-{
+        enum nl80211_reg_initiator
+        initiator) {
 	struct ieee80211_supported_band *sband;
 	struct ieee80211_channel *ch;
 	const struct ieee80211_reg_rule *reg_rule;
@@ -256,8 +249,7 @@ static void _rtw_reg_apply_active_scan_flags(struct wiphy *wiphy,
  * Always apply Radar/DFS rules on
  * freq range 5260 MHz - 5700 MHz
  */
-static void _rtw_reg_apply_radar_flags(struct wiphy *wiphy)
-{
+static void _rtw_reg_apply_radar_flags(struct wiphy *wiphy) {
 	struct ieee80211_supported_band *sband;
 	struct ieee80211_channel *ch;
 	unsigned int i;
@@ -269,25 +261,19 @@ static void _rtw_reg_apply_radar_flags(struct wiphy *wiphy)
 
 	for (i = 0; i < sband->n_channels; i++) {
 		ch = &sband->channels[i];
-		if (!rtw_is_dfs_ch(ch->hw_value))
+		if (!_rtw_is_radar_freq(ch->center_freq))
 			continue;
 #ifdef CONFIG_DFS
-		if (!(ch->flags & IEEE80211_CHAN_DISABLED)
-			#if defined(CONFIG_DFS_MASTER)
-			&& rtw_odm_dfs_domain_unknown(wiphy_to_adapter(wiphy))
-			#endif
-		) {
+#if defined(CONFIG_DFS_MASTER) && (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 14, 0))
+		if (!(ch->flags & IEEE80211_CHAN_DISABLED)) {
 			ch->flags |= IEEE80211_CHAN_RADAR;
-			#ifdef CONFIG_CENTOS_7
-				ch->flags |= IEEE80211_CHAN_NO_IR;
-			#else
-				#if (LINUX_VERSION_CODE < KERNEL_VERSION(3, 14, 0))
-				ch->flags |= (IEEE80211_CHAN_NO_IBSS | IEEE80211_CHAN_PASSIVE_SCAN);
-				#else
-				ch->flags |= IEEE80211_CHAN_NO_IR;
-				#endif
-			#endif
+#if (LINUX_VERSION_CODE < KERNEL_VERSION(3, 14, 0))
+			ch->flags |= (IEEE80211_CHAN_NO_IBSS | IEEE80211_CHAN_PASSIVE_SCAN);
+#else
+			ch->flags |= IEEE80211_CHAN_NO_IR;
+#endif
 		}
+#endif
 #endif /* CONFIG_DFS */
 
 #if 0
@@ -304,20 +290,19 @@ static void _rtw_reg_apply_radar_flags(struct wiphy *wiphy)
 		 */
 		if (!(ch->flags & IEEE80211_CHAN_DISABLED))
 			ch->flags |= IEEE80211_CHAN_RADAR |
-				     IEEE80211_CHAN_NO_IBSS |
-				     IEEE80211_CHAN_PASSIVE_SCAN;
+			             IEEE80211_CHAN_NO_IBSS |
+			             IEEE80211_CHAN_PASSIVE_SCAN;
 #endif
 	}
 }
 
-static void _rtw_reg_apply_flags(struct wiphy *wiphy)
-{
+static void _rtw_reg_apply_flags(struct wiphy *wiphy) {
 #if 1				/* by channel plan */
 	_adapter *padapter = wiphy_to_adapter(wiphy);
-	struct rf_ctl_t *rfctl = adapter_to_rfctl(padapter);
-	u8 channel_plan = rfctl->ChannelPlan;
-	RT_CHANNEL_INFO *channel_set = rfctl->channel_set;
-	u8 max_chan_nums = rfctl->max_chan_nums;
+	u8 channel_plan = padapter->mlmepriv.ChannelPlan;
+	struct mlme_ext_priv *pmlmeext = &padapter->mlmeextpriv;
+	RT_CHANNEL_INFO *channel_set = pmlmeext->channel_set;
+	u8 max_chan_nums = pmlmeext->max_chan_nums;
 
 	struct ieee80211_supported_band *sband;
 	struct ieee80211_channel *ch;
@@ -326,6 +311,7 @@ static void _rtw_reg_apply_flags(struct wiphy *wiphy)
 	u32 freq;
 
 	/* all channels disable */
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 7, 0)
 	for (i = 0; i < NUM_NL80211_BANDS; i++) {
 		sband = wiphy->bands[i];
 
@@ -338,6 +324,22 @@ static void _rtw_reg_apply_flags(struct wiphy *wiphy)
 			}
 		}
 	}
+#else
+	for (i = 0; i < IEEE80211_NUM_BANDS; i++) {
+		sband = wiphy->bands[i];
+
+		if (sband) {
+			for (j = 0; j < sband->n_channels; j++) {
+				ch = &sband->channels[j];
+
+				if (ch)
+					ch->flags = IEEE80211_CHAN_DISABLED;
+			}
+		}
+	}
+#endif
+
+
 
 	/* channels apply by channel plans. */
 	for (i = 0; i < max_chan_nums; i++) {
@@ -346,20 +348,14 @@ static void _rtw_reg_apply_flags(struct wiphy *wiphy)
 
 		ch = ieee80211_get_channel(wiphy, freq);
 		if (ch) {
-			if (channel_set[i].ScanType == SCAN_PASSIVE
-				#if defined(CONFIG_DFS_MASTER)
-				&& rtw_odm_dfs_domain_unknown(wiphy_to_adapter(wiphy))
-				#endif
-			) {
-				#ifdef CONFIG_CENTOS_7
-					ch->flags = IEEE80211_CHAN_NO_IR;
-				#else
-					#if (LINUX_VERSION_CODE < KERNEL_VERSION(3, 14, 0))
-					ch->flags = (IEEE80211_CHAN_NO_IBSS | IEEE80211_CHAN_PASSIVE_SCAN);
-					#else
-					ch->flags = IEEE80211_CHAN_NO_IR;
-					#endif
-				#endif
+			if (channel_set[i].ScanType == SCAN_PASSIVE) {
+#if defined(CONFIG_DFS_MASTER) && (LINUX_VERSION_CODE < KERNEL_VERSION(3, 14, 0))
+				ch->flags = 0;
+#elif (LINUX_VERSION_CODE < KERNEL_VERSION(3, 14, 0))
+				ch->flags = (IEEE80211_CHAN_NO_IBSS | IEEE80211_CHAN_PASSIVE_SCAN);
+#else
+				ch->flags = IEEE80211_CHAN_NO_IR;
+#endif
 			} else
 				ch->flags = 0;
 		}
@@ -378,7 +374,7 @@ static void _rtw_reg_apply_flags(struct wiphy *wiphy)
 	u16 channel;
 	u32 freq;
 
-	for (i = 0; i < NUM_NL80211_BANDS; i++) {
+	for (i = 0; i < IEEE80211_NUM_BANDS; i++) {
 		sband = wiphy->bands[i];
 
 		if (sband)
@@ -407,18 +403,16 @@ static void _rtw_reg_apply_flags(struct wiphy *wiphy)
 }
 
 static void _rtw_reg_apply_world_flags(struct wiphy *wiphy,
-				       enum nl80211_reg_initiator initiator,
-				       struct rtw_regulatory *reg)
-{
+                                       enum nl80211_reg_initiator initiator,
+                                       struct rtw_regulatory *reg) {
 	/* _rtw_reg_apply_beaconing_flags(wiphy, initiator); */
 	/* _rtw_reg_apply_active_scan_flags(wiphy, initiator); */
 	return;
 }
 
 static int _rtw_reg_notifier_apply(struct wiphy *wiphy,
-				   struct regulatory_request *request,
-				   struct rtw_regulatory *reg)
-{
+                                   struct regulatory_request *request,
+                                   struct rtw_regulatory *reg) {
 
 	/* Hard code flags */
 	_rtw_reg_apply_flags(wiphy);
@@ -430,23 +424,23 @@ static int _rtw_reg_notifier_apply(struct wiphy *wiphy,
 	case NL80211_REGDOM_SET_BY_DRIVER:
 		RTW_INFO("%s: %s\n", __func__, "NL80211_REGDOM_SET_BY_DRIVER");
 		_rtw_reg_apply_world_flags(wiphy, NL80211_REGDOM_SET_BY_DRIVER,
-					   reg);
+		                           reg);
 		break;
 	case NL80211_REGDOM_SET_BY_CORE:
 		RTW_INFO("%s: %s\n", __func__,
-			 "NL80211_REGDOM_SET_BY_CORE to DRV");
+		         "NL80211_REGDOM_SET_BY_CORE to DRV");
 		_rtw_reg_apply_world_flags(wiphy, NL80211_REGDOM_SET_BY_DRIVER,
-					   reg);
+		                           reg);
 		break;
 	case NL80211_REGDOM_SET_BY_USER:
 		RTW_INFO("%s: %s\n", __func__,
-			 "NL80211_REGDOM_SET_BY_USER to DRV");
+		         "NL80211_REGDOM_SET_BY_USER to DRV");
 		_rtw_reg_apply_world_flags(wiphy, NL80211_REGDOM_SET_BY_DRIVER,
-					   reg);
+		                           reg);
 		break;
 	case NL80211_REGDOM_SET_BY_COUNTRY_IE:
 		RTW_INFO("%s: %s\n", __func__,
-			 "NL80211_REGDOM_SET_BY_COUNTRY_IE");
+		         "NL80211_REGDOM_SET_BY_COUNTRY_IE");
 		_rtw_reg_apply_world_flags(wiphy, request->initiator, reg);
 		break;
 	}
@@ -455,9 +449,8 @@ static int _rtw_reg_notifier_apply(struct wiphy *wiphy,
 }
 
 static const struct ieee80211_regdomain *_rtw_regdomain_select(struct
-		rtw_regulatory
-		*reg)
-{
+        rtw_regulatory
+        *reg) {
 #if 0
 	switch (reg->country_code) {
 	case COUNTRY_CODE_USER:
@@ -469,8 +462,7 @@ static const struct ieee80211_regdomain *_rtw_regdomain_select(struct
 #endif
 }
 
-void _rtw_reg_notifier(struct wiphy *wiphy, struct regulatory_request *request)
-{
+void _rtw_reg_notifier(struct wiphy *wiphy, struct regulatory_request *request) {
 	struct rtw_regulatory *reg = NULL;
 
 	RTW_INFO("%s\n", __func__);
@@ -490,8 +482,7 @@ void rtw_reg_notifier(struct wiphy *wiphy, struct regulatory_request *request)
 #endif
 }
 
-void rtw_reg_notify_by_driver(_adapter *adapter)
-{
+void rtw_reg_notify_by_driver(_adapter *adapter) {
 	if ((adapter->rtw_wdev != NULL) && (adapter->rtw_wdev->wiphy)) {
 		struct regulatory_request request;
 		request.initiator = NL80211_REGDOM_SET_BY_DRIVER;
@@ -499,26 +490,19 @@ void rtw_reg_notify_by_driver(_adapter *adapter)
 	}
 }
 
-static void _rtw_regd_init_wiphy(struct rtw_regulatory *reg, struct wiphy *wiphy)
-{
+static void _rtw_regd_init_wiphy(struct rtw_regulatory *reg, struct wiphy *wiphy) {
 	const struct ieee80211_regdomain *regd;
 
 	wiphy->reg_notifier = rtw_reg_notifier;
 
-#ifdef CONFIG_CENTOS_7
+#if (LINUX_VERSION_CODE < KERNEL_VERSION(3, 14, 0))
+	wiphy->flags |= WIPHY_FLAG_CUSTOM_REGULATORY;
+	wiphy->flags &= ~WIPHY_FLAG_STRICT_REGULATORY;
+	wiphy->flags &= ~WIPHY_FLAG_DISABLE_BEACON_HINTS;
+#else
 	wiphy->regulatory_flags |= REGULATORY_CUSTOM_REG;
 	wiphy->regulatory_flags &= ~REGULATORY_STRICT_REG;
 	wiphy->regulatory_flags &= ~REGULATORY_DISABLE_BEACON_HINTS;
-#else
-	#if (LINUX_VERSION_CODE < KERNEL_VERSION(3, 14, 0))
-		wiphy->flags |= WIPHY_FLAG_CUSTOM_REGULATORY;
-		wiphy->flags &= ~WIPHY_FLAG_STRICT_REGULATORY;
-		wiphy->flags &= ~WIPHY_FLAG_DISABLE_BEACON_HINTS;
-	#else
-		wiphy->regulatory_flags |= REGULATORY_CUSTOM_REG;
-		wiphy->regulatory_flags &= ~REGULATORY_STRICT_REG;
-		wiphy->regulatory_flags &= ~REGULATORY_DISABLE_BEACON_HINTS;
-	#endif
 #endif
 
 	regd = _rtw_regdomain_select(reg);
@@ -530,8 +514,7 @@ static void _rtw_regd_init_wiphy(struct rtw_regulatory *reg, struct wiphy *wiphy
 	_rtw_reg_apply_world_flags(wiphy, NL80211_REGDOM_SET_BY_DRIVER, reg);
 }
 
-static struct country_code_to_enum_rd *_rtw_regd_find_country(u16 countrycode)
-{
+static struct country_code_to_enum_rd *_rtw_regd_find_country(u16 countrycode) {
 	int i;
 
 	for (i = 0; i < ARRAY_SIZE(allCountries); i++) {
@@ -541,14 +524,13 @@ static struct country_code_to_enum_rd *_rtw_regd_find_country(u16 countrycode)
 	return NULL;
 }
 
-int rtw_regd_init(_adapter *padapter)
-{
+int rtw_regd_init(_adapter *padapter) {
 	struct wiphy *wiphy = padapter->rtw_wdev->wiphy;
 
 #if 0
 	if (rtw_regd == NULL) {
 		rtw_regd = (struct rtw_regulatory *)
-			   rtw_malloc(sizeof(struct rtw_regulatory));
+		           rtw_malloc(sizeof(struct rtw_regulatory));
 
 		rtw_regd->alpha2[0] = '9';
 		rtw_regd->alpha2[1] = '9';
@@ -557,7 +539,7 @@ int rtw_regd_init(_adapter *padapter)
 	}
 
 	RTW_INFO("%s: Country alpha2 being used: %c%c\n",
-		 __func__, rtw_regd->alpha2[0], rtw_regd->alpha2[1]);
+	         __func__, rtw_regd->alpha2[0], rtw_regd->alpha2[1]);
 #endif
 
 	_rtw_regd_init_wiphy(NULL, wiphy);

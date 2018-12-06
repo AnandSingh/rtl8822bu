@@ -1,6 +1,6 @@
 /******************************************************************************
  *
- * Copyright(c) 2007 - 2017 Realtek Corporation.
+ * Copyright(c) 2007 - 2011 Realtek Corporation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
@@ -11,7 +11,12 @@
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
  * more details.
  *
- *****************************************************************************/
+ * You should have received a copy of the GNU General Public License along with
+ * this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110, USA
+ *
+ *
+ ******************************************************************************/
 #ifndef __INC_HAL8703BPHYCFG_H__
 #define __INC_HAL8703BPHYCFG_H__
 
@@ -96,9 +101,8 @@ PHY_GetTxPowerIndex_8703B(
 	IN	PADAPTER			pAdapter,
 	IN	u8					RFPath,
 	IN	u8					Rate,
-	IN	u8					BandWidth,
-	IN	u8					Channel,
-	struct txpwr_idx_comp *tic
+	IN	CHANNEL_WIDTH		BandWidth,
+	IN	u8					Channel
 );
 
 VOID
@@ -114,6 +118,19 @@ PHY_SetTxPowerLevel8703B(
 );
 
 VOID
+PHY_SetBWMode8703B(
+	IN	PADAPTER				Adapter,
+	IN	CHANNEL_WIDTH			Bandwidth,	/* 20M or 40M */
+	IN	unsigned char				Offset		/* Upper, Lower, or Don't care */
+);
+
+VOID
+PHY_SwChnl8703B(/* Call after initialization */
+	IN	PADAPTER	Adapter,
+	IN	u8		channel
+);
+
+VOID
 PHY_SetSwChnlBWMode8703B(
 	IN	PADAPTER			Adapter,
 	IN	u8					channel,
@@ -122,9 +139,9 @@ PHY_SetSwChnlBWMode8703B(
 	IN	u8					Offset80
 );
 
-VOID phy_set_rf_path_switch_8703b(
+VOID PHY_SetRFPathSwitch_8703B(
 	IN	PADAPTER	pAdapter,
-	IN	bool		bMain
+	IN	BOOLEAN		bMain
 );
 
 /*--------------------------Exported Function prototype End---------------------*/

@@ -1,6 +1,6 @@
 /******************************************************************************
  *
- * Copyright(c) 2007 - 2017 Realtek Corporation.
+ * Copyright(c) 2007 - 2011 Realtek Corporation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
@@ -11,7 +11,12 @@
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
  * more details.
  *
- *****************************************************************************/
+ * You should have received a copy of the GNU General Public License along with
+ * this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110, USA
+ *
+ *
+ ******************************************************************************/
 #ifndef __BASIC_TYPES_H__
 #define __BASIC_TYPES_H__
 
@@ -291,9 +296,9 @@
 		else { \
 			WriteLE4Byte(__pStart, \
 				LE_BITS_CLEARED_TO_4BYTE(__pStart, __BitOffset, __BitLen) \
-				| \
+				     | \
 				((((u32)__Value) & BIT_LEN_MASK_32(__BitLen)) << (__BitOffset)) \
-			); \
+				    ); \
 		} \
 	} while (0)
 
@@ -304,9 +309,9 @@
 		else { \
 			WriteLE2Byte(__pStart, \
 				LE_BITS_CLEARED_TO_2BYTE(__pStart, __BitOffset, __BitLen) \
-				| \
+				     | \
 				((((u16)__Value) & BIT_LEN_MASK_16(__BitLen)) << (__BitOffset)) \
-			); \
+				    ); \
 		} \
 	} while (0)
 
@@ -317,9 +322,9 @@
 		else { \
 			WriteLE1Byte(__pStart, \
 				LE_BITS_CLEARED_TO_1BYTE(__pStart, __BitOffset, __BitLen) \
-				| \
+				     | \
 				((((u8)__Value) & BIT_LEN_MASK_8(__BitLen)) << (__BitOffset)) \
-			); \
+				    ); \
 		} \
 	} while (0)
 
@@ -333,9 +338,9 @@
 		else { \
 			WriteBE4Byte(__pStart, \
 				BE_BITS_CLEARED_TO_4BYTE(__pStart, __BitOffset, __BitLen) \
-				| \
+				     | \
 				((((u32)__Value) & BIT_LEN_MASK_32(__BitLen)) << (__BitOffset)) \
-			); \
+				    ); \
 		} \
 	} while (0)
 
@@ -346,9 +351,9 @@
 		else { \
 			WriteBE2Byte(__pStart, \
 				BE_BITS_CLEARED_TO_2BYTE(__pStart, __BitOffset, __BitLen) \
-				| \
+				     | \
 				((((u16)__Value) & BIT_LEN_MASK_16(__BitLen)) << (__BitOffset)) \
-			); \
+				    ); \
 		} \
 	} while (0)
 
@@ -359,9 +364,9 @@
 		else { \
 			WriteBE1Byte(__pStart, \
 				BE_BITS_CLEARED_TO_1BYTE(__pStart, __BitOffset, __BitLen) \
-				| \
+				     | \
 				((((u8)__Value) & BIT_LEN_MASK_8(__BitLen)) << (__BitOffset)) \
-			); \
+				    ); \
 		} \
 	} while (0)
 

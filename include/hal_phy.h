@@ -1,6 +1,6 @@
 /******************************************************************************
  *
- * Copyright(c) 2007 - 2017 Realtek Corporation.
+ * Copyright(c) 2007 - 2011 Realtek Corporation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
@@ -11,7 +11,12 @@
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
  * more details.
  *
- *****************************************************************************/
+ * You should have received a copy of the GNU General Public License along with
+ * this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110, USA
+ *
+ *
+ ******************************************************************************/
 #ifndef __HAL_PHY_H__
 #define __HAL_PHY_H__
 
@@ -60,6 +65,14 @@ typedef	enum _RF_TYPE {
 	RF_PSEUDO_11N = 5,	/* 5, It is a temporality RF. */
 	RF_TYPE_MAX
 } RF_TYPE_E, *PRF_TYPE_E;
+
+#define	TX_1S			0
+#define	TX_2S			1
+#define	TX_3S			2
+#define	TX_4S			3
+
+#define	RF_PATH_MAX_92C_88E		2
+#define	RF_PATH_MAX_90_8812		4	/* Max RF number 90 support */
 
 typedef enum _ANTENNA_PATH {
 	ANTENNA_NONE	= 0,

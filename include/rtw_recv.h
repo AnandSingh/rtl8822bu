@@ -1,6 +1,6 @@
 /******************************************************************************
  *
- * Copyright(c) 2007 - 2017 Realtek Corporation.
+ * Copyright(c) 2007 - 2012 Realtek Corporation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
@@ -11,7 +11,12 @@
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
  * more details.
  *
- *****************************************************************************/
+ * You should have received a copy of the GNU General Public License along with
+ * this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110, USA
+ *
+ *
+ ******************************************************************************/
 #ifndef _RTW_RECV_H_
 #define _RTW_RECV_H_
 
@@ -46,9 +51,6 @@
 		#define NR_PREALLOC_RECV_SKB 8
 	#endif /* CONFIG_PREALLOC_RX_SKB_BUFFER */
 
-	#ifdef CONFIG_RTW_NAPI
-		#define RTL_NAPI_WEIGHT (32)
-	#endif
 #endif
 
 #define NR_RECVFRAME 256
@@ -61,7 +63,7 @@
 #define MAX_RXFRAME_CNT	512
 #define MAX_RX_NUMBLKS		(32)
 #define RECVFRAME_HDR_ALIGN 128
-#define MAX_CONTINUAL_NORXPACKET_COUNT 4    /*  In MAX_CONTINUAL_NORXPACKET_COUNT*2 sec  , no rx traffict would issue DELBA*/
+#define MAX_CONTINUAL_NORXPACKET_COUNT 1    /*  In MAX_CONTINUAL_NORXPACKET_COUNT*2 sec  , no rx traffict would issue DELBA*/
 
 #define PHY_RSSI_SLID_WIN_MAX				100
 #define PHY_LINKQUALITY_SLID_WIN_MAX		20
@@ -103,24 +105,24 @@ struct recv_reorder_ctrl {
 
 struct	stainfo_rxcache	{
 	u16	tid_rxseq[16];
-#if 0
-	unsigned short	tid0_rxseq;
-	unsigned short	tid1_rxseq;
-	unsigned short	tid2_rxseq;
-	unsigned short	tid3_rxseq;
-	unsigned short	tid4_rxseq;
-	unsigned short	tid5_rxseq;
-	unsigned short	tid6_rxseq;
-	unsigned short	tid7_rxseq;
-	unsigned short	tid8_rxseq;
-	unsigned short	tid9_rxseq;
-	unsigned short	tid10_rxseq;
-	unsigned short	tid11_rxseq;
-	unsigned short	tid12_rxseq;
-	unsigned short	tid13_rxseq;
-	unsigned short	tid14_rxseq;
-	unsigned short	tid15_rxseq;
-#endif
+	/*
+		unsigned short	tid0_rxseq;
+		unsigned short	tid1_rxseq;
+		unsigned short	tid2_rxseq;
+		unsigned short	tid3_rxseq;
+		unsigned short	tid4_rxseq;
+		unsigned short	tid5_rxseq;
+		unsigned short	tid6_rxseq;
+		unsigned short	tid7_rxseq;
+		unsigned short	tid8_rxseq;
+		unsigned short	tid9_rxseq;
+		unsigned short	tid10_rxseq;
+		unsigned short	tid11_rxseq;
+		unsigned short	tid12_rxseq;
+		unsigned short	tid13_rxseq;
+		unsigned short	tid14_rxseq;
+		unsigned short	tid15_rxseq;
+	*/
 };
 
 
@@ -248,15 +250,14 @@ struct rx_pkt_attrib	{
 
 	u8	ack_policy;
 
-/* #ifdef CONFIG_TCP_CSUM_OFFLOAD_RX */
+	/* #ifdef CONFIG_TCP_CSUM_OFFLOAD_RX */
 	u8	tcpchk_valid; /* 0: invalid, 1: valid */
 	u8	ip_chkrpt; /* 0: incorrect, 1: correct */
-	u8	tcp_chkrpt; /* 0: incorrect, 1: correct */
-/* #endif */
+	u8	tcp_chkrpt; /* 0: incorrect, 1: correct
+ * #endif */
 	u8	key_index;
 
 	u8	data_rate;
-	u8 ch; /* RX channel */
 	u8	bw;
 	u8	stbc;
 	u8	ldpc;
@@ -265,13 +266,13 @@ struct rx_pkt_attrib	{
 	u32 tsfl;
 	u32	MacIDValidEntry[2];	/* 64 bits present 64 entry. */
 
-#if 0
-	u8	signal_qual;
-	s8	rx_mimo_signal_qual[2];
-	u8	signal_strength;
-	u32	RxPWDBAll;
-	s32	RecvSignalPower;
-#endif
+	/*
+		u8	signal_qual;
+		s8	rx_mimo_signal_qual[2];
+		u8	signal_strength;
+		u32	RxPWDBAll;
+		s32	RecvSignalPower;
+	*/
 	struct phy_info phy_info;
 };
 
@@ -337,9 +338,9 @@ struct recv_stat {
 
 #ifdef CONFIG_PCI_HCI
 #define PCI_MAX_RX_QUEUE		1/* MSDU packet queue, Rx Command Queue */
-#define PCI_MAX_RX_COUNT		128
+#define PCI_MAX_RX_COUNT		512
 #ifdef CONFIG_TRX_BD_ARCH
-#define RX_BD_NUM				PCI_MAX_RX_COUNT	/* alias */
+	#define RX_BD_NUM				PCI_MAX_RX_COUNT	/* alias */
 #endif
 
 struct rtw_rx_ring {
@@ -367,7 +368,7 @@ struct recv_priv {
 
 #ifdef CONFIG_RECV_THREAD_MODE
 	_sema	recv_sema;
-
+	_sema	terminate_recvthread_sema;
 #endif
 
 	/* _queue	blk_strms[MAX_RX_NUMBLKS];    */ /* keeping the block ack frame until return ack */
@@ -394,9 +395,7 @@ struct recv_priv {
 	NDIS_EVENT	recv_resource_evt ;
 #endif
 
-
-	u32 is_any_non_be_pkts;
-
+	u32	bIsAnyNonBEPkts;
 	u64	rx_bytes;
 	u64	rx_pkts;
 	u64	rx_drop;
@@ -427,13 +426,12 @@ struct recv_priv {
 	struct task recv_tasklet;
 #else /* PLATFORM_FREEBSD */
 	struct tasklet_struct irq_prepare_beacon_tasklet;
+#ifndef CONFIG_NAPI
 	struct tasklet_struct recv_tasklet;
+#endif
 #endif /* PLATFORM_FREEBSD */
 	struct sk_buff_head free_recv_skb_queue;
 	struct sk_buff_head rx_skb_queue;
-#ifdef CONFIG_RTW_NAPI
-		struct sk_buff_head rx_napi_skb_queue;
-#endif 
 #ifdef CONFIG_RX_INDICATE_QUEUE
 	struct task rx_indicate_tasklet;
 	struct ifqueue rx_indicate_queue;
@@ -488,7 +486,7 @@ struct recv_priv {
 };
 
 #ifdef CONFIG_NEW_SIGNAL_STAT_PROCESS
-#define rtw_set_signal_stat_timer(recvpriv) _set_timer(&(recvpriv)->signal_stat_timer, (recvpriv)->signal_stat_sampling_interval)
+	#define rtw_set_signal_stat_timer(recvpriv) _set_timer(&(recvpriv)->signal_stat_timer, (recvpriv)->signal_stat_sampling_interval)
 #endif /* CONFIG_NEW_SIGNAL_STAT_PROCESS */
 
 struct sta_recv_priv {
@@ -658,10 +656,6 @@ void rtw_reordering_ctrl_timeout_handler(void *pcontext);
 void rx_query_phy_status(union recv_frame *rframe, u8 *phy_stat);
 int rtw_inc_and_chk_continual_no_rx_packet(struct sta_info *sta, int tid_index);
 void rtw_reset_continual_no_rx_packet(struct sta_info *sta, int tid_index);
-
-#ifdef CONFIG_RECV_THREAD_MODE
-thread_return rtw_recv_thread(thread_context context);
-#endif
 
 __inline static u8 *get_rxmem(union recv_frame *precvframe)
 {

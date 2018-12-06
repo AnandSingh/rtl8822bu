@@ -1,6 +1,6 @@
 /******************************************************************************
  *
- * Copyright(c) 2007 - 2017 Realtek Corporation.
+ * Copyright(c) 2007 - 2014 Realtek Corporation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
@@ -11,7 +11,12 @@
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
  * more details.
  *
- *****************************************************************************/
+ * You should have received a copy of the GNU General Public License along with
+ * this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110, USA
+ *
+ *
+ ******************************************************************************/
 
 #ifndef _RTW_CFGVENDOR_H_
 #define _RTW_CFGVENDOR_H_
@@ -230,10 +235,10 @@ typedef enum gscan_complete_event {
 extern int rtw_cfgvendor_attach(struct wiphy *wiphy);
 extern int rtw_cfgvendor_detach(struct wiphy *wiphy);
 extern int rtw_cfgvendor_send_async_event(struct wiphy *wiphy,
-	struct net_device *dev, int event_id, const void  *data, int len);
+        struct net_device *dev, int event_id, const void  *data, int len);
 #if defined(GSCAN_SUPPORT) && 0
 extern int wl_cfgvendor_send_hotlist_event(struct wiphy *wiphy,
-	struct net_device *dev, void  *data, int len, wl_vendor_event_t event);
+        struct net_device *dev, void  *data, int len, wl_vendor_event_t event);
 #endif
 #endif /* (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 14, 0)) || defined(RTW_VENDOR_EXT_SUPPORT) */
 

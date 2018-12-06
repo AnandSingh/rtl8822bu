@@ -1,6 +1,6 @@
 /******************************************************************************
  *
- * Copyright(c) 2015 - 2017 Realtek Corporation.
+ * Copyright(c) 2015 - 2016 Realtek Corporation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
@@ -11,7 +11,12 @@
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
  * more details.
  *
- *****************************************************************************/
+ * You should have received a copy of the GNU General Public License along with
+ * this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110, USA
+ *
+ *
+ ******************************************************************************/
 #define _RTL8822BU_RECV_C_
 
 #include <drv_types.h>			/* PADAPTER, rtw_xmit.h and etc. */
@@ -72,7 +77,10 @@ static u8 recvbuf2recvframe_proccess_normal_rx
 	if (pattrib->physt && pphy_status)
 		rx_query_phy_status(precvframe, pphy_status);
 
-	rtw_recv_entry(precvframe);
+	if (rtw_recv_entry(precvframe) != _SUCCESS) {
+		RT_TRACE(_module_rtl871x_recv_c_, _drv_err_,
+			("recvbuf2recvframe: rtw_recv_entry(precvframe) != _SUCCESS\n"));
+	}
 
 exit:
 	return ret;
@@ -110,6 +118,7 @@ int recvbuf2recvframe(PADAPTER padapter, void *ptr)
 	do {
 		precvframe = rtw_alloc_recvframe(pfree_recv_queue);
 		if (precvframe == NULL) {
+			RT_TRACE(_module_rtl871x_recv_c_, _drv_err_, ("recvbuf2recvframe: precvframe==NULL\n"));
 			RTW_INFO("%s()-%d: rtw_alloc_recvframe() failed! RX Drop!\n", __func__, __LINE__);
 			goto _exit_recvbuf2recvframe;
 		}
@@ -132,6 +141,7 @@ int recvbuf2recvframe(PADAPTER padapter, void *ptr)
 		pkt_offset = RXDESC_SIZE + pattrib->drvinfo_sz + pattrib->shift_sz + pattrib->pkt_len;
 
 		if ((pattrib->pkt_len <= 0) || (pkt_offset > transfer_len)) {
+			RT_TRACE(_module_rtl871x_recv_c_, _drv_info_, ("recvbuf2recvframe: pkt_len<=0\n"));
 			RTW_INFO("%s()-%d: RX Warning!,pkt_len<=0(%d) or pkt_offset(%d)> transfer_len(%d)\n"
 				, __func__, __LINE__, pattrib->pkt_len, pkt_offset, transfer_len);
 			if (pkt_offset > transfer_len)

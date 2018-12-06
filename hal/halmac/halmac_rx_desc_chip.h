@@ -1,18 +1,3 @@
-/******************************************************************************
- *
- * Copyright(c) 2016 - 2017 Realtek Corporation. All rights reserved.
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of version 2 of the GNU General Public License as
- * published by the Free Software Foundation.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- ******************************************************************************/
-
 #ifndef _HALMAC_RX_DESC_CHIP_H_
 #define _HALMAC_RX_DESC_CHIP_H_
 #if (HALMAC_8814A_SUPPORT)
@@ -129,7 +114,6 @@
 /*RXDESC_WORD2*/
 
 #define GET_RX_DESC_FCS_OK_8822B(__pRxDesc)    GET_RX_DESC_FCS_OK(__pRxDesc)
-#define GET_RX_DESC_PPDU_CNT_8822B(__pRxDesc)    GET_RX_DESC_PPDU_CNT(__pRxDesc)
 #define GET_RX_DESC_C2H_8822B(__pRxDesc)    GET_RX_DESC_C2H(__pRxDesc)
 #define GET_RX_DESC_HWRSVD_8822B(__pRxDesc)    GET_RX_DESC_HWRSVD(__pRxDesc)
 #define GET_RX_DESC_WLANHD_IV_LEN_8822B(__pRxDesc)    GET_RX_DESC_WLANHD_IV_LEN(__pRxDesc)
@@ -142,8 +126,6 @@
 #define GET_RX_DESC_MAGIC_WAKE_8822B(__pRxDesc)    GET_RX_DESC_MAGIC_WAKE(__pRxDesc)
 #define GET_RX_DESC_UNICAST_WAKE_8822B(__pRxDesc)    GET_RX_DESC_UNICAST_WAKE(__pRxDesc)
 #define GET_RX_DESC_PATTERN_MATCH_8822B(__pRxDesc)    GET_RX_DESC_PATTERN_MATCH(__pRxDesc)
-#define GET_RX_DESC_RXPAYLOAD_MATCH_8822B(__pRxDesc)    GET_RX_DESC_RXPAYLOAD_MATCH(__pRxDesc)
-#define GET_RX_DESC_RXPAYLOAD_ID_8822B(__pRxDesc)    GET_RX_DESC_RXPAYLOAD_ID(__pRxDesc)
 #define GET_RX_DESC_DMA_AGG_NUM_8822B(__pRxDesc)    GET_RX_DESC_DMA_AGG_NUM(__pRxDesc)
 #define GET_RX_DESC_BSSID_FIT_1_0_8822B(__pRxDesc)    GET_RX_DESC_BSSID_FIT_1_0(__pRxDesc)
 #define GET_RX_DESC_EOSP_8822B(__pRxDesc)    GET_RX_DESC_EOSP(__pRxDesc)
@@ -280,7 +262,6 @@
 /*RXDESC_WORD2*/
 
 #define GET_RX_DESC_FCS_OK_8821C(__pRxDesc)    GET_RX_DESC_FCS_OK(__pRxDesc)
-#define GET_RX_DESC_PPDU_CNT_8821C(__pRxDesc)    GET_RX_DESC_PPDU_CNT(__pRxDesc)
 #define GET_RX_DESC_C2H_8821C(__pRxDesc)    GET_RX_DESC_C2H(__pRxDesc)
 #define GET_RX_DESC_HWRSVD_8821C(__pRxDesc)    GET_RX_DESC_HWRSVD(__pRxDesc)
 #define GET_RX_DESC_WLANHD_IV_LEN_8821C(__pRxDesc)    GET_RX_DESC_WLANHD_IV_LEN(__pRxDesc)
@@ -293,8 +274,6 @@
 #define GET_RX_DESC_MAGIC_WAKE_8821C(__pRxDesc)    GET_RX_DESC_MAGIC_WAKE(__pRxDesc)
 #define GET_RX_DESC_UNICAST_WAKE_8821C(__pRxDesc)    GET_RX_DESC_UNICAST_WAKE(__pRxDesc)
 #define GET_RX_DESC_PATTERN_MATCH_8821C(__pRxDesc)    GET_RX_DESC_PATTERN_MATCH(__pRxDesc)
-#define GET_RX_DESC_RXPAYLOAD_MATCH_8821C(__pRxDesc)    GET_RX_DESC_RXPAYLOAD_MATCH(__pRxDesc)
-#define GET_RX_DESC_RXPAYLOAD_ID_8821C(__pRxDesc)    GET_RX_DESC_RXPAYLOAD_ID(__pRxDesc)
 #define GET_RX_DESC_DMA_AGG_NUM_8821C(__pRxDesc)    GET_RX_DESC_DMA_AGG_NUM(__pRxDesc)
 #define GET_RX_DESC_BSSID_FIT_1_0_8821C(__pRxDesc)    GET_RX_DESC_BSSID_FIT_1_0(__pRxDesc)
 #define GET_RX_DESC_EOSP_8821C(__pRxDesc)    GET_RX_DESC_EOSP(__pRxDesc)
@@ -387,4 +366,3 @@
 
 
 #endif
-

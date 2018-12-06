@@ -1,6 +1,6 @@
 /******************************************************************************
  *
- * Copyright(c) 2015 - 2017 Realtek Corporation.
+ * Copyright(c) 2015 - 2016 Realtek Corporation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
@@ -11,7 +11,12 @@
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
  * more details.
  *
- *****************************************************************************/
+ * You should have received a copy of the GNU General Public License along with
+ * this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110, USA
+ *
+ *
+ ******************************************************************************/
 #define _RTL8822BU_OPS_C_
 
 #include <drv_types.h>			/* PADAPTER, basic_types.h and etc. */
@@ -23,8 +28,8 @@
 
 #ifdef CONFIG_SUPPORT_USB_INT
 static void rtl8822bu_interrupt_handler(PADAPTER padapter, u16 pkt_len, u8 *pbuf)
-{	
-	}
+{
+}
 #endif /* CONFIG_SUPPORT_USB_INT */
 
 void rtl8822bu_set_hw_type(struct dvobj_priv *pdvobj)
@@ -36,7 +41,6 @@ void rtl8822bu_set_hw_type(struct dvobj_priv *pdvobj)
 static void sethwreg(PADAPTER padapter, u8 variable, u8 *val)
 {
 	HAL_DATA_TYPE *pHalData = GET_HAL_DATA(padapter);
-	struct dvobj_priv	*pdvobjpriv = adapter_to_dvobj(padapter);
 	struct pwrctrl_priv *pwrctl = adapter_to_pwrctl(padapter);
 	struct registry_priv *registry_par = &padapter->registrypriv;
 	int status = 0;
@@ -44,55 +48,11 @@ static void sethwreg(PADAPTER padapter, u8 variable, u8 *val)
 	switch (variable) {
 	case HW_VAR_RXDMA_AGG_PG_TH:
 #ifdef CONFIG_USB_RX_AGGREGATION
-		if (pdvobjpriv->traffic_stat.cur_tx_tp < 1 && pdvobjpriv->traffic_stat.cur_rx_tp < 1) {
-			/* for low traffic, do not usb AGGREGATION */
-			pHalData->rxagg_usb_timeout = 0x01;
-			pHalData->rxagg_usb_size = 0;
 
-		} else {
-#ifdef CONFIG_PLATFORM_NOVATEK_NT72668
-			pHalData->rxagg_usb_timeout = 0x20;
-			pHalData->rxagg_usb_size = 0x03;
-#elif defined(CONFIG_PLATFORM_HISILICON)
-			/* use 16k to workaround for HISILICON platform */
-			pHalData->rxagg_usb_timeout = 8;
-			pHalData->rxagg_usb_size = 3;
-#else
-			/* default setting */
-			pHalData->rxagg_usb_timeout = 0x20;
-			pHalData->rxagg_usb_size = 0x05;
-#endif
-		}
-		rtw_halmac_rx_agg_switch(pdvobjpriv, _TRUE);
-#if 0
-		RTW_INFO("\n==========RAFFIC_STATISTIC==============\n");
-		RTW_INFO("cur_tx_bytes:%lld\n", pdvobjpriv->traffic_stat.cur_tx_bytes);
-		RTW_INFO("cur_rx_bytes:%lld\n", pdvobjpriv->traffic_stat.cur_rx_bytes);
-
-		RTW_INFO("last_tx_bytes:%lld\n", pdvobjpriv->traffic_stat.last_tx_bytes);
-		RTW_INFO("last_rx_bytes:%lld\n", pdvobjpriv->traffic_stat.last_rx_bytes);
-
-		RTW_INFO("cur_tx_tp:%d\n", pdvobjpriv->traffic_stat.cur_tx_tp);
-		RTW_INFO("cur_rx_tp:%d\n", pdvobjpriv->traffic_stat.cur_rx_tp);
-		RTW_INFO("\n========================\n");
-#endif
 #endif
 		break;
 	case HW_VAR_SET_RPWM:
-#ifdef CONFIG_LPS_LCLK
-		{
-			u8	ps_state = *((u8 *)val);
 
-			/*rpwm value only use BIT0(clock bit) ,BIT6(Ack bit), and BIT7(Toggle bit) for 88e.
-			BIT0 value - 1: 32k, 0:40MHz.
-			BIT6 value - 1: report cpwm value after success set, 0:do not report.
-			BIT7 value - Toggle bit change.
-			modify by Thomas. 2012/4/2.*/
-			ps_state = ps_state & 0xC1;
-			/* RTW_INFO("##### Change RPWM value to = %x for switch clk #####\n", ps_state); */
-			rtw_write8(padapter, REG_USB_HRPWM_8822B, ps_state);
-		}
-#endif
 		break;
 	case HW_VAR_AMPDU_MAX_TIME:
 		rtw_write8(padapter, REG_AMPDU_MAX_TIME_V1_8822B, 0x70);
@@ -114,19 +74,6 @@ static void sethwreg(PADAPTER padapter, u8 variable, u8 *val)
 			}
 		}
 		break;
-	case HW_VAR_SET_REQ_FW_PS:
-	{
-		/*
-		 * 1. driver write 0x8f[4]=1
-		 *    request fw ps state (only can write bit4)
-		 */
-		u8 req_fw_ps = 0;
-
-		req_fw_ps = rtw_read8(padapter, 0x8f);
-		req_fw_ps |= 0x10;
-		rtw_write8(padapter, 0x8f, req_fw_ps);
-	}
-	break;
 	default:
 		rtl8822b_sethwreg(padapter, variable, val);
 		break;
@@ -136,30 +83,15 @@ static void sethwreg(PADAPTER padapter, u8 variable, u8 *val)
 static void gethwreg(PADAPTER padapter, u8 variable, u8 *val)
 {
 	HAL_DATA_TYPE *pHalData = GET_HAL_DATA(padapter);
+	_func_enter_;
 
 	switch (variable) {
-	case HW_VAR_CPWM:
-#ifdef CONFIG_LPS_LCLK
-		*val = rtw_read8(padapter, REG_USB_HCPWM_8822B);
-		/* RTW_INFO("##### REG_USB_HCPWM(0x%02x) = 0x%02x #####\n", REG_USB_HCPWM_8822B, *val); */
-#endif /* CONFIG_LPS_LCLK */
-		break;
-	case HW_VAR_RPWM_TOG:
-#ifdef CONFIG_LPS_LCLK
-		*val = rtw_read8(padapter, REG_USB_HRPWM_8822B);
-		*val &= BIT_TOGGLING_8822B;
-#endif /* CONFIG_LPS_LCLK */
-		break;
-
-	case HW_VAR_FW_PS_STATE:
-		/* driver read dword 0x88 to get fw ps state */
-		*((u16 *)val) = rtw_read16(padapter, 0x88);
-		break;
 	default:
 		rtl8822b_gethwreg(padapter, variable, val);
 		break;
 	}
 
+	_func_exit_;
 }
 
 /*
@@ -232,15 +164,12 @@ static u8 rtl8822bu_ps_func(PADAPTER padapter, HAL_INTF_PS_FUNC efunc_id, u8 *va
  *	2. Read registers to initialize
  *	3. Other vaiables initialization
  */
-static u8 read_adapter_info(PADAPTER padapter)
+static void read_adapter_info(PADAPTER padapter)
 {
-	u8 ret = _FAIL;
-
 	/*
 	 * 1. Read Efuse/EEPROM to initialize
 	 */
-	if (rtl8822b_read_efuse(padapter) != _SUCCESS)
-		goto exit;
+	rtl8822b_read_efuse(padapter);
 
 	/*
 	 * 2. Read registers to initialize
@@ -249,11 +178,6 @@ static u8 read_adapter_info(PADAPTER padapter)
 	/*
 	 * 3. Other Initialization
 	 */
-
-	ret = _SUCCESS;
-
-exit:
-	return ret;
 }
 
 
@@ -262,6 +186,7 @@ void rtl8822bu_set_hal_ops(PADAPTER padapter)
 	struct hal_ops *ops;
 	int err;
 
+	_func_enter_;
 
 	err = rtl8822bu_halmac_init_adapter(padapter);
 	if (err) {
@@ -271,7 +196,7 @@ void rtl8822bu_set_hal_ops(PADAPTER padapter)
 
 	rtl8822b_set_hal_ops(padapter);
 
-	ops = &padapter->hal_func;
+	ops = &padapter->HalFunc;
 
 	ops->hal_init = rtl8822bu_init;
 	ops->hal_deinit = rtl8822bu_deinit;
@@ -296,9 +221,9 @@ void rtl8822bu_set_hal_ops(PADAPTER padapter)
 	ops->intf_chip_configure = rtl8822bu_interface_configure;
 	ops->read_adapter_info = read_adapter_info;
 
-	ops->set_hw_reg_handler = sethwreg;
+	ops->SetHwRegHandler = sethwreg;
 	ops->GetHwRegHandler = gethwreg;
-	ops->get_hal_def_var_handler = gethaldefvar;
+	ops->GetHalDefVarHandler = gethaldefvar;
 	ops->SetHalDefVarHandler = sethaldefvar;
 
 
@@ -317,5 +242,6 @@ void rtl8822bu_set_hal_ops(PADAPTER padapter)
 	ops->interrupt_handler = rtl8822bu_interrupt_handler;
 #endif
 
+	_func_exit_;
 
 }

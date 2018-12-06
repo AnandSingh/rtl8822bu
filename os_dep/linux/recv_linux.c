@@ -1,6 +1,6 @@
 /******************************************************************************
  *
- * Copyright(c) 2007 - 2017 Realtek Corporation.
+ * Copyright(c) 2007 - 2011 Realtek Corporation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
@@ -11,7 +11,12 @@
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
  * more details.
  *
- *****************************************************************************/
+ * You should have received a copy of the GNU General Public License along with
+ * this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110, USA
+ *
+ *
+ ******************************************************************************/
 #define _RECV_OSDEP_C_
 
 #include <drv_types.h>
@@ -102,6 +107,7 @@ int rtw_os_alloc_recvframe(_adapter *padapter, union recv_frame *precvframe, u8 
 	} else {
 #if 0
 		{
+			RT_TRACE(_module_rtl871x_recv_c_, _drv_crit_, ("%s: no enough memory to allocate SKB!\n", __func__));
 			rtw_free_recvframe(precvframe_if2, &precvpriv->free_recv_queue);
 			rtw_enqueue_recvbuf_to_head(precvbuf, &precvpriv->recv_buf_pending_queue);
 
@@ -172,11 +178,6 @@ int rtw_os_recv_resource_init(struct recv_priv *precvpriv, _adapter *padapter)
 {
 	int	res = _SUCCESS;
 
-
-#ifdef CONFIG_RTW_NAPI
-	skb_queue_head_init(&precvpriv->rx_napi_skb_queue);
-#endif /* CONFIG_RTW_NAPI */
-
 	return res;
 }
 
@@ -196,13 +197,6 @@ void rtw_os_recv_resource_free(struct recv_priv *precvpriv)
 	sint i;
 	union recv_frame *precvframe;
 	precvframe = (union recv_frame *) precvpriv->precv_frame_buf;
-
-
-#ifdef CONFIG_RTW_NAPI
-	if (skb_queue_len(&precvpriv->rx_napi_skb_queue))
-		RTW_WARN("rx_napi_skb_queue not empty\n");
-	rtw_skb_queue_purge(&precvpriv->rx_napi_skb_queue);
-#endif /* CONFIG_RTW_NAPI */
 
 	for (i = 0; i < NR_RECVFRAME; i++) {
 		if (precvframe->u.hdr.pkt) {
@@ -322,8 +316,8 @@ _pkt *rtw_os_alloc_msdu_pkt(union recv_frame *prframe, u16 nSubframe_Length, u8 
 	     _rtw_memcmp(sub_skb->data, rtw_bridge_tunnel_header, SNAP_SIZE))) {
 		/* remove RFC1042 or Bridge-Tunnel encapsulation and replace EtherType */
 		skb_pull(sub_skb, SNAP_SIZE);
-		_rtw_memcpy(skb_push(sub_skb, ETH_ALEN), pdata+6, ETH_ALEN);
-		_rtw_memcpy(skb_push(sub_skb, ETH_ALEN), pdata, ETH_ALEN);
+		_rtw_memcpy(skb_push(sub_skb, ETH_ALEN), pattrib->src, ETH_ALEN);
+		_rtw_memcpy(skb_push(sub_skb, ETH_ALEN), pattrib->dst, ETH_ALEN);
 	} else {
 		u16 len;
 		/* Leave Ethernet header part of hdr and full payload */
@@ -336,69 +330,6 @@ _pkt *rtw_os_alloc_msdu_pkt(union recv_frame *prframe, u16 nSubframe_Length, u8 
 	return sub_skb;
 }
 
-#ifdef CONFIG_RTW_NAPI
-static int napi_recv(_adapter *padapter, int budget)
-{
-	_pkt *pskb;
-	struct recv_priv *precvpriv = &padapter->recvpriv;
-	int work_done = 0;
-	struct registry_priv *pregistrypriv = &padapter->registrypriv;
-	u8 rx_ok;
-
-
-	while ((work_done < budget) &&
-	       (!skb_queue_empty(&precvpriv->rx_napi_skb_queue))) {
-		pskb = skb_dequeue(&precvpriv->rx_napi_skb_queue);
-		if (!pskb)
-			break;
-
-		rx_ok = _FALSE;
-
-#ifdef CONFIG_RTW_GRO
-		if (pregistrypriv->en_gro) {
-			if (rtw_napi_gro_receive(&padapter->napi, pskb) != GRO_DROP)
-				rx_ok = _TRUE;
-			goto next;
-		}
-#endif /* CONFIG_RTW_GRO */
-
-		if (rtw_netif_receive_skb(padapter->pnetdev, pskb) == NET_RX_SUCCESS)
-			rx_ok = _TRUE;
-
-next:
-		if (rx_ok == _TRUE) {
-			work_done++;
-			DBG_COUNTER(padapter->rx_logs.os_netif_ok);
-		} else {
-			DBG_COUNTER(padapter->rx_logs.os_netif_err);
-		}
-	}
-
-	return work_done;
-}
-
-int rtw_recv_napi_poll(struct napi_struct *napi, int budget)
-{
-	_adapter *padapter = container_of(napi, _adapter, napi);
-	int work_done = 0;
-	struct recv_priv *precvpriv = &padapter->recvpriv;
-
-
-	work_done = napi_recv(padapter, budget);
-	if (work_done < budget) {
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 19, 0))
-		napi_complete_done(napi, work_done);
-#else
-		napi_complete(napi);
-#endif
-		if (!skb_queue_empty(&precvpriv->rx_napi_skb_queue))
-			napi_schedule(napi);
-	}
-
-	return work_done;
-}
-#endif /* CONFIG_RTW_NAPI */
-
 #ifdef DBG_UDP_PKT_LOSE_11AC
 	#define PAYLOAD_LEN_LOC_OF_IP_HDR 0x10 /*ethernet payload length location of ip header (DA + SA+eth_type+(version&hdr_len)) */
 #endif
@@ -407,7 +338,6 @@ void rtw_os_recv_indicate_pkt(_adapter *padapter, _pkt *pkt, struct rx_pkt_attri
 {
 	struct mlme_priv *pmlmepriv = &padapter->mlmepriv;
 	struct recv_priv *precvpriv = &(padapter->recvpriv);
-	struct registry_priv	*pregistrypriv = &padapter->registrypriv;
 #ifdef CONFIG_BR_EXT
 	void *br_port = NULL;
 #endif
@@ -517,16 +447,6 @@ void rtw_os_recv_indicate_pkt(_adapter *padapter, _pkt *pkt, struct rx_pkt_attri
 		pkt->ip_summed = CHECKSUM_NONE;
 #endif /* CONFIG_TCP_CSUM_OFFLOAD_RX */
 
-#ifdef CONFIG_RTW_NAPI
-		if (pregistrypriv->en_napi) {
-			skb_queue_tail(&precvpriv->rx_napi_skb_queue, pkt);
-#ifndef CONFIG_RTW_NAPI_V2
-			napi_schedule(&padapter->napi);
-#endif /* !CONFIG_RTW_NAPI_V2 */
-			return;
-		}
-#endif /* CONFIG_RTW_NAPI */
-
 		ret = rtw_netif_rx(padapter->pnetdev, pkt);
 		if (ret == NET_RX_SUCCESS)
 			DBG_COUNTER(padapter->rx_logs.os_netif_ok);
@@ -592,6 +512,7 @@ void rtw_hostapd_mlme_rx(_adapter *padapter, union recv_frame *precv_frame)
 	struct hostapd_priv *phostapdpriv  = padapter->phostapdpriv;
 	struct net_device *pmgnt_netdev = phostapdpriv->pmgnt_netdev;
 
+	RT_TRACE(_module_recv_osdep_c_, _drv_info_, ("+rtw_hostapd_mlme_rx\n"));
 
 	skb = precv_frame->u.hdr.pkt;
 
@@ -745,9 +666,14 @@ int rtw_recv_indicatepkt(_adapter *padapter, union recv_frame *precv_frame)
 
 	skb = precv_frame->u.hdr.pkt;
 	if (skb == NULL) {
+		RT_TRACE(_module_recv_osdep_c_, _drv_err_, ("rtw_recv_indicatepkt():skb==NULL something wrong!!!!\n"));
 		goto _recv_indicatepkt_drop;
 	}
 
+	RT_TRACE(_module_recv_osdep_c_, _drv_info_, ("rtw_recv_indicatepkt():skb != NULL !!!\n"));
+	RT_TRACE(_module_recv_osdep_c_, _drv_info_, ("rtw_recv_indicatepkt():precv_frame->u.hdr.rx_head=%p  precv_frame->hdr.rx_data=%p\n", precv_frame->u.hdr.rx_head, precv_frame->u.hdr.rx_data));
+	RT_TRACE(_module_recv_osdep_c_, _drv_info_, ("precv_frame->hdr.rx_tail=%p precv_frame->u.hdr.rx_end=%p precv_frame->hdr.len=%d\n", precv_frame->u.hdr.rx_tail, precv_frame->u.hdr.rx_end,
+			precv_frame->u.hdr.len));
 
 	skb->data = precv_frame->u.hdr.rx_data;
 
@@ -755,6 +681,8 @@ int rtw_recv_indicatepkt(_adapter *padapter, union recv_frame *precv_frame)
 
 	skb->len = precv_frame->u.hdr.len;
 
+	RT_TRACE(_module_recv_osdep_c_, _drv_info_, ("\n skb->head=%p skb->data=%p skb->tail=%p skb->end=%p skb->len=%d\n", skb->head, skb->data, skb_tail_pointer(skb), skb_end_pointer(skb),
+			skb->len));
 
 	if (pattrib->eth_type == 0x888e)
 		RTW_PRINT("recv eapol packet\n");
@@ -831,6 +759,7 @@ _recv_indicatepkt_end:
 
 	rtw_free_recvframe(precv_frame, pfree_recv_queue);
 
+	RT_TRACE(_module_recv_osdep_c_, _drv_info_, ("\n rtw_recv_indicatepkt :after rtw_os_recv_indicate_pkt!!!!\n"));
 
 
 	return _SUCCESS;
@@ -870,4 +799,17 @@ void rtw_os_read_port(_adapter *padapter, struct recv_buf *precvbuf)
 #endif
 
 }
+void _rtw_reordering_ctrl_timeout_handler(void *FunctionContext);
+void _rtw_reordering_ctrl_timeout_handler(void *FunctionContext)
+{
+	struct recv_reorder_ctrl *preorder_ctrl = (struct recv_reorder_ctrl *)FunctionContext;
+	rtw_reordering_ctrl_timeout_handler(preorder_ctrl);
+}
 
+void rtw_init_recv_timer(struct recv_reorder_ctrl *preorder_ctrl)
+{
+	_adapter *padapter = preorder_ctrl->padapter;
+
+	_init_timer(&(preorder_ctrl->reordering_ctrl_timer), padapter->pnetdev, _rtw_reordering_ctrl_timeout_handler, preorder_ctrl);
+
+}

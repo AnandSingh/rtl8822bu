@@ -1,6 +1,6 @@
 /******************************************************************************
  *
- * Copyright(c) 2015 - 2017 Realtek Corporation.
+ * Copyright(c) 2015 - 2016 Realtek Corporation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
@@ -11,7 +11,12 @@
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
  * more details.
  *
- *****************************************************************************/
+ * You should have received a copy of the GNU General Public License along with
+ * this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110, USA
+ *
+ *
+ ******************************************************************************/
 #define _RTL8822BU_XMIT_C_
 
 #include <drv_types.h>			/* PADAPTER, rtw_xmit.h and etc. */
@@ -122,11 +127,6 @@ static s32 update_txdesc(struct xmit_frame *pxmitframe, u8 *pmem, s32 sz, u8 bag
 
 		rtl8822b_fill_txdesc_vcs(padapter, pattrib, ptxdesc);
 
-#ifdef CONFIG_CONCURRENT_MODE
-		if (bmcst)
-			rtl8822b_fill_txdesc_force_bmc_camid(pattrib, ptxdesc);
-#endif
-
 		if ((pattrib->ether_type != 0x888e) &&
 		    (pattrib->ether_type != 0x0806) &&
 		    (pattrib->ether_type != 0x88b4) &&
@@ -208,16 +208,34 @@ static s32 update_txdesc(struct xmit_frame *pxmitframe, u8 *pmem, s32 sz, u8 bag
 		SET_TX_DESC_USE_RATE_8822B(ptxdesc, 1);
 		DriverFixedRate = 0x01;
 
-		SET_TX_DESC_DATARATE_8822B(ptxdesc, MRateToHwRate(pattrib->rate));
-
-		SET_TX_DESC_RTY_LMT_EN_8822B(ptxdesc, 1);
-		if (pattrib->retry_ctrl == _TRUE)
-			SET_TX_DESC_RTS_DATA_RTY_LMT_8822B(ptxdesc, 6);
-		else
-			SET_TX_DESC_RTS_DATA_RTY_LMT_8822B(ptxdesc, 12);
+#ifdef CONFIG_INTEL_PROXIM
+		if ((padapter->proximity.proxim_on == _TRUE) && (pattrib->intel_proxim == _TRUE)) {
+			RTW_INFO("\n %s pattrib->rate=%d\n", __func__, pattrib->rate);
+			SET_TX_DESC_DATARATE_8822B(ptxdesc, pattrib->rate);
+		} else
+#endif
+			SET_TX_DESC_DATARATE_8822B(ptxdesc, MRateToHwRate(pattrib->rate));
 
 		/* VHT NDPA or HT NDPA Packet for Beamformer. */
-		rtl8822b_fill_txdesc_mgnt_bf(pxmitframe, ptxdesc);
+		if ((pattrib->subtype == WIFI_NDPA) ||
+		    ((pattrib->subtype == WIFI_ACTION_NOACK) && (pattrib->order == 1))) {
+
+			SET_TX_DESC_NAVUSEHDR_8822B(ptxdesc, 1);
+
+			SET_TX_DESC_DATA_BW_8822B(ptxdesc, rtl8822b_bw_mapping(padapter, pattrib));
+			SET_TX_DESC_RTS_SC_8822B(ptxdesc, rtl8822b_sc_mapping(padapter, pattrib));
+
+			SET_TX_DESC_RTY_LMT_EN_8822B(ptxdesc, 1);
+			SET_TX_DESC_RTS_DATA_RTY_LMT_8822B(ptxdesc, 5);
+			SET_TX_DESC_DISRTSFB_8822B(ptxdesc, 1);
+			SET_TX_DESC_NDPA_8822B(ptxdesc, 1);
+		} else {
+			SET_TX_DESC_RTY_LMT_EN_8822B(ptxdesc, 1);
+			if (pattrib->retry_ctrl == _TRUE)
+				SET_TX_DESC_RTS_DATA_RTY_LMT_8822B(ptxdesc, 6);
+			else
+				SET_TX_DESC_RTS_DATA_RTY_LMT_8822B(ptxdesc, 12);
+		}
 
 #ifdef CONFIG_XMIT_ACK
 		/* CCX-TXRPT ack for xmit mgmt frames */
@@ -230,14 +248,10 @@ static s32 update_txdesc(struct xmit_frame *pxmitframe, u8 *pmem, s32 sz, u8 bag
 #endif /* CONFIG_XMIT_ACK */
 	} else if ((pxmitframe->frame_tag & 0x0f) == TXAGG_FRAMETAG)
 		RTW_INFO("pxmitframe->frame_tag == TXAGG_FRAMETAG\n");
-
-#ifdef CONFIG_MP_INCLUDED
 	else if (((pxmitframe->frame_tag & 0x0f) == MP_FRAMETAG) &&
 		 (padapter->registrypriv.mp_mode == 1))
 
 		fill_txdesc_for_mp(padapter, ptxdesc);
-#endif
-
 	else {
 		RTW_INFO("pxmitframe->frame_tag = %d\n", pxmitframe->frame_tag);
 
@@ -246,15 +260,10 @@ static s32 update_txdesc(struct xmit_frame *pxmitframe, u8 *pmem, s32 sz, u8 bag
 		SET_TX_DESC_DATARATE_8822B(ptxdesc, MRateToHwRate(pmlmeext->tx_rate));
 	}
 
-	rtl8822b_fill_txdesc_bf(pxmitframe, ptxdesc);
-
 	if (DriverFixedRate)
 		SWDefineContent |= 0x01;
 
 	SET_TX_DESC_SW_DEFINE_8822B(ptxdesc, SWDefineContent);
-
-	SET_TX_DESC_PORT_ID_8822B(ptxdesc, get_hw_port(padapter));
-	SET_TX_DESC_MULTIPLE_PORT_8822B(ptxdesc, get_hw_port(padapter));
 
 	rtl8822b_cal_txdesc_chksum(padapter, ptxdesc);
 	rtl8822b_dbg_dump_tx_desc(padapter, pxmitframe->frame_tag, ptxdesc);
@@ -284,15 +293,19 @@ s32 rtl8822bu_xmit_buf_handler(PADAPTER padapter)
 	pxmitpriv = &padapter->xmitpriv;
 
 	ret = _rtw_down_sema(&pxmitpriv->xmit_sema);
-	if (_FAIL == ret)
+	if (_FAIL == ret) {
+		RT_TRACE(_module_hal_xmit_c_, _drv_emerg_,
+			 ("%s: down SdioXmitBufSema fail!\n", __FUNCTION__));
 		return _FAIL;
+	}
 
 	if (RTW_CANNOT_RUN(padapter)) {
-		RTW_DBG(FUNC_ADPT_FMT "- bDriverStopped(%s) bSurpriseRemoved(%s)\n",
-			FUNC_ADPT_ARG(padapter),
-			rtw_is_drv_stopped(padapter) ? "True" : "False",
-			rtw_is_surprise_removed(padapter) ? "True" : "False");
-		return _FAIL;
+		RT_TRACE(_module_hal_xmit_c_, _drv_notice_
+			 , ("%s: bDriverStopped(%s) bSurpriseRemoved(%s)!\n"
+			    , __func__
+			    , rtw_is_drv_stopped(padapter) ? "True" : "False"
+			, rtw_is_surprise_removed(padapter) ? "True" : "False");
+			 return _FAIL;
 	}
 
 	if (check_pending_xmitbuf(pxmitpriv) == _FALSE)
@@ -301,6 +314,8 @@ s32 rtl8822bu_xmit_buf_handler(PADAPTER padapter)
 #ifdef CONFIG_LPS_LCLK
 	ret = rtw_register_tx_alive(padapter);
 	if (ret != _SUCCESS) {
+		RT_TRACE(_module_hal_xmit_c_, _drv_notice_,
+			 ("%s: wait to leave LPS_LCLK\n", __FUNCTION__));
 		return _SUCCESS;
 	}
 #endif /* CONFIG_LPS_LCLK */
@@ -310,8 +325,7 @@ s32 rtl8822bu_xmit_buf_handler(PADAPTER padapter)
 		if (pxmitbuf == NULL)
 			break;
 
-		/* only XMITBUF_DATA & XMITBUF_MGNT */
-		rtw_write_port_and_wait(padapter, pxmitbuf->ff_hwaddr, pxmitbuf->len, (unsigned char *)pxmitbuf, 500);
+		rtw_write_port(padapter, pxmitbuf->ff_hwaddr, pxmitbuf->len, (unsigned char *)pxmitbuf);
 	} while (1);
 
 #ifdef CONFIG_LPS_LCLK
@@ -354,6 +368,7 @@ static s32 rtw_dump_xframe(PADAPTER padapter, struct xmit_frame *pxmitframe)
 			ret = _FAIL;
 
 		if (t != (pattrib->nr_frags - 1)) {
+			RT_TRACE(_module_rtl871x_xmit_c_, _drv_err_, ("pattrib->nr_frags=%d\n", pattrib->nr_frags));
 
 			sz = pxmitpriv->frag_len;
 			sz = sz - 4 - (psecuritypriv->sw_encrypt ? 0 : pattrib->icv_len);
@@ -386,12 +401,7 @@ static s32 rtw_dump_xframe(PADAPTER padapter, struct xmit_frame *pxmitframe)
 #ifdef CONFIG_XMIT_THREAD_MODE
 		pxmitbuf->len = w_sz;
 		pxmitbuf->ff_hwaddr = ff_hwaddr;
-
-		if (pxmitbuf->buf_tag  == XMITBUF_CMD)
-			/* download rsvd page or fw */
-			inner_ret = rtw_write_port(padapter, ff_hwaddr, w_sz, (unsigned char *)pxmitbuf);
-		else
-			enqueue_pending_xmitbuf(pxmitpriv, pxmitbuf);		
+		enqueue_pending_xmitbuf(pxmitpriv, pxmitbuf);
 #else
 		inner_ret = rtw_write_port(padapter, ff_hwaddr, w_sz, (unsigned char *)pxmitbuf);
 #endif
@@ -466,6 +476,7 @@ static s32 rtl8822bu_xmitframe_complete(PADAPTER padapter, struct xmit_priv *pxm
 	int res = _SUCCESS;
 #endif
 
+	RT_TRACE(_module_rtl8192c_xmit_c_, _drv_info_, ("+xmitframe_complete\n"));
 
 
 	/* check xmitbuffer is ok */
@@ -489,12 +500,17 @@ static s32 rtl8822bu_xmitframe_complete(PADAPTER padapter, struct xmit_priv *pxm
 
 #ifndef IDEA_CONDITION
 		if (pxmitframe->frame_tag != DATA_FRAMETAG) {
+			RT_TRACE(_module_rtl8192c_xmit_c_, _drv_err_,
+				("xmitframe_complete: frame tag(%d) is not DATA_FRAMETAG(%d)!\n",
+				  pxmitframe->frame_tag, DATA_FRAMETAG));
 			continue;
 		}
 
 		/* TID 0~15 */
 		if ((pxmitframe->attrib.priority < 0) ||
 		    (pxmitframe->attrib.priority > 15)) {
+			RT_TRACE(_module_rtl8192c_xmit_c_, _drv_err_,
+				("xmitframe_complete: TID(%d) should be 0~15!\n", pxmitframe->attrib.priority));
 			continue;
 		}
 #endif
@@ -613,6 +629,9 @@ static s32 rtl8822bu_xmitframe_complete(PADAPTER padapter, struct xmit_priv *pxm
 #ifndef IDEA_CONDITION
 		/* suppose only data frames would be in queue */
 		if (pxmitframe->frame_tag != DATA_FRAMETAG) {
+			RT_TRACE(_module_rtl8192c_xmit_c_, _drv_err_,
+				("xmitframe_complete: frame tag(%d) is not DATA_FRAMETAG(%d)!\n",
+				  pxmitframe->frame_tag, DATA_FRAMETAG));
 			rtw_free_xmitframe(pxmitpriv, pxmitframe);
 			continue;
 		}
@@ -620,6 +639,9 @@ static s32 rtl8822bu_xmitframe_complete(PADAPTER padapter, struct xmit_priv *pxm
 		/* TID 0~15 */
 		if ((pxmitframe->attrib.priority < 0) ||
 		    (pxmitframe->attrib.priority > 15)) {
+			RT_TRACE(_module_rtl8192c_xmit_c_, _drv_err_,
+				("xmitframe_complete: TID(%d) should be 0~15!\n",
+				  pxmitframe->attrib.priority));
 			rtw_free_xmitframe(pxmitpriv, pxmitframe);
 			continue;
 		}
@@ -707,18 +729,7 @@ agg_end:
 #endif
 	ff_hwaddr = rtw_get_ff_hwaddr(pfirstframe);
 
-#ifdef CONFIG_XMIT_THREAD_MODE
-	pxmitbuf->len = pbuf_tail;
-	pxmitbuf->ff_hwaddr = ff_hwaddr;
-
-	if (pxmitbuf->buf_tag  == XMITBUF_CMD)
-		/* download rsvd page or fw */
-		rtw_write_port(padapter, ff_hwaddr, pbuf_tail, (u8 *)pxmitbuf);
-	else
-		enqueue_pending_xmitbuf(pxmitpriv, pxmitbuf);		
-#else
 	rtw_write_port(padapter, ff_hwaddr, pbuf_tail, (u8 *)pxmitbuf);
-#endif
 
 
 	/* 5. update statisitc */
@@ -746,6 +757,7 @@ static s32 rtl8822bu_xmitframe_complete(PADAPTER padapter, struct xmit_priv *pxm
 	phwxmits = pxmitpriv->hwxmits;
 	hwentry = pxmitpriv->hwxmit_entry;
 
+	RT_TRACE(_module_rtl871x_xmit_c_, _drv_info_, ("xmitframe_complete()\n"));
 
 	if (pxmitbuf == NULL) {
 		pxmitbuf = rtw_alloc_xmitbuf(pxmitpriv);
@@ -773,6 +785,7 @@ static s32 rtl8822bu_xmitframe_complete(PADAPTER padapter, struct xmit_priv *pxm
 			}
 
 
+			RT_TRACE(_module_rtl871x_xmit_c_, _drv_info_, ("xmitframe_complete(): rtw_dump_xframe\n"));
 
 
 			if (res == _SUCCESS)
@@ -878,7 +891,7 @@ static s32 pre_xmitframe(PADAPTER padapter, struct xmit_frame *pxmitframe)
 	if (rtw_xmit_ac_blocked(padapter) == _TRUE)
 		goto enqueue;
 
-	if (DEV_STA_LG_NUM(padapter->dvobj))
+	if (padapter->dvobj->iface_state.lg_sta_num)
 		goto enqueue;
 
 	pxmitbuf = rtw_alloc_xmitbuf(pxmitpriv);
@@ -903,6 +916,7 @@ enqueue:
 	_exit_critical_bh(&pxmitpriv->lock, &irqL);
 
 	if (res != _SUCCESS) {
+		RT_TRACE(_module_xmit_osdep_c_, _drv_err_, ("pre_xmitframe: enqueue xmitframe fail\n"));
 		rtw_free_xmitframe(pxmitpriv, pxmitframe);
 
 		pxmitpriv->tx_drop++;

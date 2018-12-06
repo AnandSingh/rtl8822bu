@@ -1,6 +1,6 @@
 /******************************************************************************
  *
- * Copyright(c) 2007 - 2017 Realtek Corporation.
+ * Copyright(c) 2007 - 2011 Realtek Corporation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
@@ -11,7 +11,12 @@
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
  * more details.
  *
- *****************************************************************************/
+ * You should have received a copy of the GNU General Public License along with
+ * this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110, USA
+ *
+ *
+ ******************************************************************************/
 #ifndef __RTW_SECURITY_H_
 #define __RTW_SECURITY_H_
 
@@ -25,9 +30,9 @@
 #define _WEP_WPA_MIXED_	0x07  /* WEP + WPA */
 #define _SMS4_				0x06
 #ifdef CONFIG_IEEE80211W
-#define _BIP_				0x8
-#endif /* CONFIG_IEEE80211W */
-/* 802.11W use wrong key */
+	#define _BIP_				0x8
+#endif /* CONFIG_IEEE80211W
+* 802.11W use wrong key */
 #define IEEE80211W_RIGHT_KEY	0x0
 #define IEEE80211W_WRONG_KEY	0x1
 #define IEEE80211W_NO_KEY		0x2
@@ -45,7 +50,6 @@ const char *security_type_str(u8 value);
 
 #define RTW_KEK_LEN 16
 #define RTW_KCK_LEN 16
-#define RTW_TKIP_MIC_LEN 8
 #define RTW_REPLAY_CTR_LEN 8
 
 #define INVALID_SEC_MAC_CAM_ID	0xFF
@@ -61,11 +65,11 @@ typedef enum {
 
 
 #ifndef Ndis802_11AuthModeWPA2
-#define Ndis802_11AuthModeWPA2 (Ndis802_11AuthModeWPANone + 1)
+	#define Ndis802_11AuthModeWPA2 (Ndis802_11AuthModeWPANone + 1)
 #endif
 
 #ifndef Ndis802_11AuthModeWPA2PSK
-#define Ndis802_11AuthModeWPA2PSK (Ndis802_11AuthModeWPANone + 2)
+	#define Ndis802_11AuthModeWPA2PSK (Ndis802_11AuthModeWPANone + 2)
 #endif
 
 union pn48	{
@@ -74,29 +78,29 @@ union pn48	{
 
 #ifdef CONFIG_LITTLE_ENDIAN
 
-struct {
-	u8 TSC0;
-	u8 TSC1;
-	u8 TSC2;
-	u8 TSC3;
-	u8 TSC4;
-	u8 TSC5;
-	u8 TSC6;
-	u8 TSC7;
-} _byte_;
+	struct {
+		u8 TSC0;
+		u8 TSC1;
+		u8 TSC2;
+		u8 TSC3;
+		u8 TSC4;
+		u8 TSC5;
+		u8 TSC6;
+		u8 TSC7;
+	} _byte_;
 
 #elif defined(CONFIG_BIG_ENDIAN)
 
-struct {
-	u8 TSC7;
-	u8 TSC6;
-	u8 TSC5;
-	u8 TSC4;
-	u8 TSC3;
-	u8 TSC2;
-	u8 TSC1;
-	u8 TSC0;
-} _byte_;
+	struct {
+		u8 TSC7;
+		u8 TSC6;
+		u8 TSC5;
+		u8 TSC4;
+		u8 TSC3;
+		u8 TSC2;
+		u8 TSC1;
+		u8 TSC0;
+	} _byte_;
 
 #endif
 
@@ -154,8 +158,6 @@ struct security_priv {
 #ifdef CONFIG_CONCURRENT_MODE
 	u8	dot118021x_bmc_cam_id;
 #endif
-	/*IEEE802.11-2012 Std. Table 8-101 AKM Suite Selectors*/
-	u32	rsn_akm_suite_type;
 
 	u8 wps_ie[MAX_WPS_IE_LEN];/* added in assoc req */
 	int wps_ie_len;
@@ -169,6 +171,7 @@ struct security_priv {
 	u8	binstallBIPkey;
 #endif /* CONFIG_IEEE80211W */
 	u8	busetkipkey;
+	/* _timer tkip_timer; */
 	u8	bcheck_grpkey;
 	u8	bgrpkey_handshake;
 
@@ -365,7 +368,7 @@ static inline u32 rotr(u32 val, int bits)
 #define TD3_(i) rotr(Td0[(i) & 0xff], 24)
 
 #define GETU32(pt) (((u32)(pt)[0] << 24) ^ ((u32)(pt)[1] << 16) ^ \
-			((u32)(pt)[2] <<  8) ^ ((u32)(pt)[3]))
+		    ((u32)(pt)[2] <<  8) ^ ((u32)(pt)[3]))
 
 #define PUTU32(ct, st) { \
 		(ct)[0] = (u8)((st) >> 24); (ct)[1] = (u8)((st) >> 16); \
@@ -436,10 +439,10 @@ static const unsigned long K[64] = {
 #define Gamma0(x)       (S(x, 7) ^ S(x, 18) ^ R(x, 3))
 #define Gamma1(x)       (S(x, 17) ^ S(x, 19) ^ R(x, 10))
 #ifndef MIN
-#define MIN(x, y) (((x) < (y)) ? (x) : (y))
+	#define MIN(x, y) (((x) < (y)) ? (x) : (y))
 #endif
 #ifdef CONFIG_IEEE80211W
-int omac1_aes_128(u8 *key, u8 *data, size_t data_len, u8 *mac);
+	int omac1_aes_128(u8 *key, u8 *data, size_t data_len, u8 *mac);
 #endif /* CONFIG_IEEE80211W */
 void rtw_secmicsetkey(struct mic_data *pmicdata, u8 *key);
 void rtw_secmicappendbyte(struct mic_data *pmicdata, u8 b);
@@ -462,24 +465,26 @@ u32 rtw_aes_decrypt(_adapter *padapter, u8  *precvframe);
 u32 rtw_tkip_decrypt(_adapter *padapter, u8  *precvframe);
 void rtw_wep_decrypt(_adapter *padapter, u8  *precvframe);
 #ifdef CONFIG_IEEE80211W
-u32	rtw_BIP_verify(_adapter *padapter, u8 *precvframe);
+	u32	rtw_BIP_verify(_adapter *padapter, u8 *precvframe);
 #endif /* CONFIG_IEEE80211W */
 #ifdef CONFIG_TDLS
 void wpa_tdls_generate_tpk(_adapter *padapter, PVOID sta);
 int wpa_tdls_ftie_mic(u8 *kck, u8 trans_seq,
-			u8 *lnkid, u8 *rsnie, u8 *timeoutie, u8 *ftie,
-			u8 *mic);
+		      u8 *lnkid, u8 *rsnie, u8 *timeoutie, u8 *ftie,
+		      u8 *mic);
 int wpa_tdls_teardown_ftie_mic(u8 *kck, u8 *lnkid, u16 reason,
-			u8 dialog_token, u8 trans_seq, u8 *ftie, u8 *mic);
+		       u8 dialog_token, u8 trans_seq, u8 *ftie, u8 *mic);
 int tdls_verify_mic(u8 *kck, u8 trans_seq,
-			u8 *lnkid, u8 *rsnie, u8 *timeoutie, u8 *ftie);
+		    u8 *lnkid, u8 *rsnie, u8 *timeoutie, u8 *ftie);
 #endif /* CONFIG_TDLS */
+
+void rtw_use_tkipkey_handler(RTW_TIMER_HDL_ARGS);
 
 void rtw_sec_restore_wep_key(_adapter *adapter);
 u8 rtw_handle_tkip_countermeasure(_adapter *adapter, const char *caller);
 
 #ifdef CONFIG_WOWLAN
-u16 rtw_calc_crc(u8  *pdata, int length);
+	u16 rtw_calc_crc(u8  *pdata, int length);
 #endif /*CONFIG_WOWLAN*/
 
 #endif /* __RTL871X_SECURITY_H_ */

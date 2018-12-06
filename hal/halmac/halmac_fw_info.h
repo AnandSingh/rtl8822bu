@@ -1,28 +1,13 @@
-/******************************************************************************
- *
- * Copyright(c) 2016 - 2017 Realtek Corporation. All rights reserved.
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of version 2 of the GNU General Public License as
- * published by the Free Software Foundation.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- ******************************************************************************/
-
 #ifndef _HALMAC_FW_INFO_H_
 #define _HALMAC_FW_INFO_H_
 
-#define H2C_FORMAT_VERSION              6
+#define H2C_FORMAT_VERSION              4
 
 #define H2C_ACK_HDR_CONTENT_LENGTH          8
 #define CFG_PARAMETER_ACK_CONTENT_LENGTH    16
 #define SCAN_STATUS_RPT_CONTENT_LENGTH      4
 #define C2H_DBG_HEADER_LENGTH               4
-#define C2H_DBG_CONTENT_MAX_LENGTH			228
+#define C2H_DBG_CONTENT_MAX_LENGTH                      228
 
 #define C2H_DBG_CONTENT_SEQ_OFFSET          1
 

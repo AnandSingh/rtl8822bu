@@ -1,18 +1,3 @@
-/******************************************************************************
- *
- * Copyright(c) 2016 - 2017 Realtek Corporation. All rights reserved.
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of version 2 of the GNU General Public License as
- * published by the Free Software Foundation.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- ******************************************************************************/
-
 #ifndef _HALMAC_RX_DESC_AP_H_
 #define _HALMAC_RX_DESC_AP_H_
 #if (HALMAC_8814A_SUPPORT || HALMAC_8822B_SUPPORT || HALMAC_8197F_SUPPORT || HALMAC_8821C_SUPPORT || HALMAC_8188F_SUPPORT)
@@ -65,17 +50,6 @@
 /*RXDESC_WORD2*/
 
 #define GET_RX_DESC_FCS_OK(__pRxDesc)    HALMAC_GET_DESC_FIELD(((PHALMAC_RX_DESC)__pRxDesc)->Dword2, 0x1, 31)
-
-#endif
-
-#if (HALMAC_8822B_SUPPORT || HALMAC_8821C_SUPPORT)
-
-#define GET_RX_DESC_PPDU_CNT(__pRxDesc)    HALMAC_GET_DESC_FIELD(((PHALMAC_RX_DESC)__pRxDesc)->Dword2, 0x3, 29)
-
-#endif
-
-#if (HALMAC_8814A_SUPPORT || HALMAC_8822B_SUPPORT || HALMAC_8197F_SUPPORT || HALMAC_8821C_SUPPORT || HALMAC_8188F_SUPPORT)
-
 #define GET_RX_DESC_C2H(__pRxDesc)    HALMAC_GET_DESC_FIELD(((PHALMAC_RX_DESC)__pRxDesc)->Dword2, 0x1, 28)
 #define GET_RX_DESC_HWRSVD(__pRxDesc)    HALMAC_GET_DESC_FIELD(((PHALMAC_RX_DESC)__pRxDesc)->Dword2, 0xf, 24)
 #define GET_RX_DESC_WLANHD_IV_LEN(__pRxDesc)    HALMAC_GET_DESC_FIELD(((PHALMAC_RX_DESC)__pRxDesc)->Dword2, 0x3f, 18)
@@ -88,18 +62,6 @@
 #define GET_RX_DESC_MAGIC_WAKE(__pRxDesc)    HALMAC_GET_DESC_FIELD(((PHALMAC_RX_DESC)__pRxDesc)->Dword3, 0x1, 31)
 #define GET_RX_DESC_UNICAST_WAKE(__pRxDesc)    HALMAC_GET_DESC_FIELD(((PHALMAC_RX_DESC)__pRxDesc)->Dword3, 0x1, 30)
 #define GET_RX_DESC_PATTERN_MATCH(__pRxDesc)    HALMAC_GET_DESC_FIELD(((PHALMAC_RX_DESC)__pRxDesc)->Dword3, 0x1, 29)
-
-#endif
-
-#if (HALMAC_8822B_SUPPORT || HALMAC_8821C_SUPPORT)
-
-#define GET_RX_DESC_RXPAYLOAD_MATCH(__pRxDesc)    HALMAC_GET_DESC_FIELD(((PHALMAC_RX_DESC)__pRxDesc)->Dword3, 0x1, 28)
-#define GET_RX_DESC_RXPAYLOAD_ID(__pRxDesc)    HALMAC_GET_DESC_FIELD(((PHALMAC_RX_DESC)__pRxDesc)->Dword3, 0xf, 24)
-
-#endif
-
-#if (HALMAC_8814A_SUPPORT || HALMAC_8822B_SUPPORT || HALMAC_8197F_SUPPORT || HALMAC_8821C_SUPPORT || HALMAC_8188F_SUPPORT)
-
 #define GET_RX_DESC_DMA_AGG_NUM(__pRxDesc)    HALMAC_GET_DESC_FIELD(((PHALMAC_RX_DESC)__pRxDesc)->Dword3, 0xff, 16)
 #define GET_RX_DESC_BSSID_FIT_1_0(__pRxDesc)    HALMAC_GET_DESC_FIELD(((PHALMAC_RX_DESC)__pRxDesc)->Dword3, 0x3, 12)
 #define GET_RX_DESC_EOSP(__pRxDesc)    HALMAC_GET_DESC_FIELD(((PHALMAC_RX_DESC)__pRxDesc)->Dword3, 0x1, 11)
@@ -144,4 +106,3 @@
 
 
 #endif
-

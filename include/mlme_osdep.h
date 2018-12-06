@@ -1,6 +1,6 @@
 /******************************************************************************
  *
- * Copyright(c) 2007 - 2017 Realtek Corporation.
+ * Copyright(c) 2007 - 2011 Realtek Corporation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
@@ -11,7 +11,12 @@
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
  * more details.
  *
- *****************************************************************************/
+ * You should have received a copy of the GNU General Public License along with
+ * this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110, USA
+ *
+ *
+ ******************************************************************************/
 #ifndef	__MLME_OSDEP_H_
 #define __MLME_OSDEP_H_
 
@@ -20,6 +25,7 @@
 	extern int time_after(u32 now, u32 old);
 #endif
 
+extern void rtw_init_mlme_timer(_adapter *padapter);
 extern void rtw_os_indicate_disconnect(_adapter *adapter, u16 reason, u8 locally_generated);
 extern void rtw_os_indicate_connect(_adapter *adapter);
 void rtw_os_indicate_scan_done(_adapter *padapter, bool aborted);

@@ -1,6 +1,6 @@
 /******************************************************************************
  *
- * Copyright(c) 2007 - 2017 Realtek Corporation.
+ * Copyright(c) 2007 - 2011 Realtek Corporation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
@@ -11,7 +11,11 @@
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
  * more details.
  *
- *****************************************************************************/
+ * You should have received a copy of the GNU General Public License along with
+ * this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110, USA
+ *
+ *******************************************************************************/
 #ifndef __RTL8723D_SPEC_H__
 #define __RTL8723D_SPEC_H__
 
@@ -437,5 +441,17 @@
 
 	#define RT_AC_INT_MASKS	(IMR_VIDOK_8723D | IMR_VODOK_8723D | IMR_BEDOK_8723D | IMR_BKDOK_8723D)
 #endif
+
+/* ********************************************************
+ * General definitions
+ * ******************************************************** */
+
+#define MACID_NUM_8723D 16
+#define SEC_CAM_ENT_NUM_8723D 32
+#define HW_PORT_NUM_8723D 3	/*port0, port1, port2*/
+#define NSS_NUM_8723D 1
+#define BAND_CAP_8723D (BAND_CAP_2G)
+#define BW_CAP_8723D (BW_CAP_20M | BW_CAP_40M)
+#define PROTO_CAP_8723D (PROTO_CAP_11B | PROTO_CAP_11G | PROTO_CAP_11N)
 
 #endif /* __RTL8723D_SPEC_H__ */

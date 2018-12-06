@@ -1,27 +1,14 @@
-/******************************************************************************
- *
- * Copyright(c) 2016 - 2017 Realtek Corporation. All rights reserved.
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of version 2 of the GNU General Public License as
- * published by the Free Software Foundation.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- ******************************************************************************/
-
 #ifndef _HALMAC_API_H_
 #define _HALMAC_API_H_
 
-#define HALMAC_SVN_VER  "13348M"
+#define HALMAC_SVN_VER  "11974M"
 
-#define HALMAC_MAJOR_VER        0x0001		/* major version, ver_1 for async_api */
-#define HALMAC_PROTOTYPE_VER    0x0003		/* For halmac_api num change or prototype change, increment prototype version */
-#define HALMAC_MINOR_VER        0x0009		/* else increment minor version */
-#define HALMAC_PATCH_VER        0x0000		/* patch version */
+/* major version, ver_1 for async_api */
+#define HALMAC_MAJOR_VER        0x0001
+/* For halmac_api num change or prototype change, increment prototype version */
+#define HALMAC_PROTOTYPE_VER    0x0002
+/* else increment minor version */
+#define HALMAC_MINOR_VER        0x0000
 
 #include "halmac_2_platform.h"
 #include "halmac_hw_cfg.h"
@@ -63,29 +50,21 @@
 #include "halmac_tx_bd_chip.h"
 #include "halmac_rx_bd_chip.h"
 #if HALMAC_PLATFORM_WINDOWS == 1
-
-#if HALMAC_8822B_SUPPORT
 #include "halmac_88xx/halmac_win8822b_cfg.h"
-#endif
-#if HALMAC_8821C_SUPPORT
 #include "halmac_88xx/halmac_win8821c_cfg.h"
-#endif
-
+#include "halmac_88xx/halmac_win8197f_cfg.h"
 #else
 #include "halmac_88xx/halmac_88xx_cfg.h"
 #endif
 
-#if HALMAC_8822B_SUPPORT
 #include "halmac_88xx/halmac_8822b/halmac_8822b_cfg.h"
+#include "halmac_88xx/halmac_8821c/halmac_8821c_cfg.h"
+#include "halmac_88xx/halmac_8197f/halmac_8197f_cfg.h"
 #include "halmac_reg_8822b.h"
 #include "halmac_bit_8822b.h"
-#endif
-
-#if HALMAC_8821C_SUPPORT
-#include "halmac_88xx/halmac_8821c/halmac_8821c_cfg.h"
 #include "halmac_reg_8821c.h"
 #include "halmac_bit_8821c.h"
-#endif
+
 
 HALMAC_RET_STATUS
 halmac_init_adapter(
@@ -108,7 +87,7 @@ halmac_halt_api(
 
 HALMAC_RET_STATUS
 halmac_get_version(
-	OUT HALMAC_VER *version
+	OUT HALMAC_VER * version
 );
 
 #endif

@@ -1,18 +1,3 @@
-/******************************************************************************
- *
- * Copyright(c) 2016 - 2017 Realtek Corporation. All rights reserved.
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of version 2 of the GNU General Public License as
- * published by the Free Software Foundation.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- ******************************************************************************/
-
 #ifndef _HALMAC_RX_DESC_NIC_H_
 #define _HALMAC_RX_DESC_NIC_H_
 #if (HALMAC_8814A_SUPPORT || HALMAC_8822B_SUPPORT || HALMAC_8197F_SUPPORT || HALMAC_8821C_SUPPORT || HALMAC_8188F_SUPPORT)
@@ -65,17 +50,6 @@
 /*RXDESC_WORD2*/
 
 #define GET_RX_DESC_FCS_OK(__pRxDesc)    LE_BITS_TO_4BYTE(__pRxDesc + 0x08, 31, 1)
-
-#endif
-
-#if (HALMAC_8822B_SUPPORT || HALMAC_8821C_SUPPORT)
-
-#define GET_RX_DESC_PPDU_CNT(__pRxDesc)    LE_BITS_TO_4BYTE(__pRxDesc + 0x08, 29, 2)
-
-#endif
-
-#if (HALMAC_8814A_SUPPORT || HALMAC_8822B_SUPPORT || HALMAC_8197F_SUPPORT || HALMAC_8821C_SUPPORT || HALMAC_8188F_SUPPORT)
-
 #define GET_RX_DESC_C2H(__pRxDesc)    LE_BITS_TO_4BYTE(__pRxDesc + 0x08, 28, 1)
 #define GET_RX_DESC_HWRSVD(__pRxDesc)    LE_BITS_TO_4BYTE(__pRxDesc + 0x08, 24, 4)
 #define GET_RX_DESC_WLANHD_IV_LEN(__pRxDesc)    LE_BITS_TO_4BYTE(__pRxDesc + 0x08, 18, 6)
@@ -88,18 +62,6 @@
 #define GET_RX_DESC_MAGIC_WAKE(__pRxDesc)    LE_BITS_TO_4BYTE(__pRxDesc + 0x0C, 31, 1)
 #define GET_RX_DESC_UNICAST_WAKE(__pRxDesc)    LE_BITS_TO_4BYTE(__pRxDesc + 0x0C, 30, 1)
 #define GET_RX_DESC_PATTERN_MATCH(__pRxDesc)    LE_BITS_TO_4BYTE(__pRxDesc + 0x0C, 29, 1)
-
-#endif
-
-#if (HALMAC_8822B_SUPPORT || HALMAC_8821C_SUPPORT)
-
-#define GET_RX_DESC_RXPAYLOAD_MATCH(__pRxDesc)    LE_BITS_TO_4BYTE(__pRxDesc + 0x0C, 28, 1)
-#define GET_RX_DESC_RXPAYLOAD_ID(__pRxDesc)    LE_BITS_TO_4BYTE(__pRxDesc + 0x0C, 24, 4)
-
-#endif
-
-#if (HALMAC_8814A_SUPPORT || HALMAC_8822B_SUPPORT || HALMAC_8197F_SUPPORT || HALMAC_8821C_SUPPORT || HALMAC_8188F_SUPPORT)
-
 #define GET_RX_DESC_DMA_AGG_NUM(__pRxDesc)    LE_BITS_TO_4BYTE(__pRxDesc + 0x0C, 16, 8)
 #define GET_RX_DESC_BSSID_FIT_1_0(__pRxDesc)    LE_BITS_TO_4BYTE(__pRxDesc + 0x0C, 12, 2)
 #define GET_RX_DESC_EOSP(__pRxDesc)    LE_BITS_TO_4BYTE(__pRxDesc + 0x0C, 11, 1)
@@ -144,4 +106,3 @@
 
 
 #endif
-

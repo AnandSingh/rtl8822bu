@@ -1,6 +1,6 @@
 /******************************************************************************
  *
- * Copyright(c) 2007 - 2017 Realtek Corporation.
+ * Copyright(c) 2007 - 2011 Realtek Corporation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
@@ -11,7 +11,12 @@
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
  * more details.
  *
- *****************************************************************************/
+ * You should have received a copy of the GNU General Public License along with
+ * this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110, USA
+ *
+ *
+ ******************************************************************************/
 #define _IEEE80211_C
 
 #ifdef CONFIG_PLATFORM_INTEL_BYT
@@ -267,7 +272,9 @@ u8 *rtw_get_ie(u8 *pbuf, sint index, sint *len, sint limit)
 {
 	sint tmp, i;
 	u8 *p;
+	_func_enter_;
 	if (limit < 1) {
+		_func_exit_;
 		return NULL;
 	}
 
@@ -286,6 +293,7 @@ u8 *rtw_get_ie(u8 *pbuf, sint index, sint *len, sint limit)
 		if (i >= limit)
 			break;
 	}
+	_func_exit_;
 	return NULL;
 }
 
@@ -382,6 +390,7 @@ exit:
 
 void rtw_set_supported_rate(u8 *SupportedRates, uint mode)
 {
+	_func_enter_;
 
 	_rtw_memset(SupportedRates, 0, NDIS_802_11_LENGTH_RATES_EX);
 
@@ -407,11 +416,13 @@ void rtw_set_supported_rate(u8 *SupportedRates, uint mode)
 		break;
 
 	}
+	_func_exit_;
 }
 
 uint	rtw_get_rateset_len(u8	*rateset)
 {
 	uint i = 0;
+	_func_enter_;
 	while (1) {
 		if ((rateset[i]) == 0)
 			break;
@@ -421,6 +432,7 @@ uint	rtw_get_rateset_len(u8	*rateset)
 
 		i++;
 	}
+	_func_exit_;
 	return i;
 }
 
@@ -431,6 +443,7 @@ int rtw_generate_ie(struct registry_priv *pregistrypriv)
 	WLAN_BSSID_EX	*pdev_network = &pregistrypriv->dev_network;
 	u8	*ie = pdev_network->IEs;
 
+	_func_enter_;
 
 	/* timestamp will be inserted by hardware */
 	sz += 8;
@@ -503,6 +516,7 @@ int rtw_generate_ie(struct registry_priv *pregistrypriv)
 
 	/* pdev_network->IELength =  sz; */ /* update IELength */
 
+	_func_exit_;
 
 	/* return _SUCCESS; */
 
@@ -634,6 +648,7 @@ int rtw_parse_wpa_ie(u8 *wpa_ie, int wpa_ie_len, int *group_cipher, int *pairwis
 		left -= WPA_SELECTOR_LEN;
 
 	} else if (left > 0) {
+		RT_TRACE(_module_rtl871x_mlme_c_, _drv_err_, ("%s: ie length mismatch, %u too much", __FUNCTION__, left));
 
 		return _FAIL;
 	}
@@ -647,6 +662,8 @@ int rtw_parse_wpa_ie(u8 *wpa_ie, int wpa_ie_len, int *group_cipher, int *pairwis
 		left -= 2;
 
 		if (count == 0 || left < count * WPA_SELECTOR_LEN) {
+			RT_TRACE(_module_rtl871x_mlme_c_, _drv_err_, ("%s: ie count botch (pairwise), "
+				"count %u left %u", __FUNCTION__, count, left));
 			return _FAIL;
 		}
 
@@ -658,6 +675,7 @@ int rtw_parse_wpa_ie(u8 *wpa_ie, int wpa_ie_len, int *group_cipher, int *pairwis
 		}
 
 	} else if (left == 1) {
+		RT_TRACE(_module_rtl871x_mlme_c_, _drv_err_, ("%s: ie too short (for key mgmt)",   __FUNCTION__));
 		return _FAIL;
 	}
 
@@ -665,6 +683,7 @@ int rtw_parse_wpa_ie(u8 *wpa_ie, int wpa_ie_len, int *group_cipher, int *pairwis
 		if (left >= 6) {
 			pos += 2;
 			if (_rtw_memcmp(pos, SUITE_1X, 4) == 1) {
+				RT_TRACE(_module_rtl871x_mlme_c_, _drv_info_, ("%s : there has 802.1x auth\n", __FUNCTION__));
 				*is_8021x = 1;
 			}
 		}
@@ -703,6 +722,7 @@ int rtw_parse_wpa2_ie(u8 *rsn_ie, int rsn_ie_len, int *group_cipher, int *pairwi
 		left -= RSN_SELECTOR_LEN;
 
 	} else if (left > 0) {
+		RT_TRACE(_module_rtl871x_mlme_c_, _drv_err_, ("%s: ie length mismatch, %u too much", __FUNCTION__, left));
 		return _FAIL;
 	}
 
@@ -714,6 +734,8 @@ int rtw_parse_wpa2_ie(u8 *rsn_ie, int rsn_ie_len, int *group_cipher, int *pairwi
 		left -= 2;
 
 		if (count == 0 || left < count * RSN_SELECTOR_LEN) {
+			RT_TRACE(_module_rtl871x_mlme_c_, _drv_err_, ("%s: ie count botch (pairwise), "
+				"count %u left %u", __FUNCTION__, count, left));
 			return _FAIL;
 		}
 
@@ -725,6 +747,7 @@ int rtw_parse_wpa2_ie(u8 *rsn_ie, int rsn_ie_len, int *group_cipher, int *pairwi
 		}
 
 	} else if (left == 1) {
+		RT_TRACE(_module_rtl871x_mlme_c_, _drv_err_, ("%s: ie too short (for key mgmt)",  __FUNCTION__));
 
 		return _FAIL;
 	}
@@ -733,6 +756,7 @@ int rtw_parse_wpa2_ie(u8 *rsn_ie, int rsn_ie_len, int *group_cipher, int *pairwi
 		if (left >= 6) {
 			pos += 2;
 			if (_rtw_memcmp(pos, SUITE_1X, 4) == 1) {
+				RT_TRACE(_module_rtl871x_mlme_c_, _drv_info_, ("%s (): there has 802.1x auth\n", __FUNCTION__));
 				*is_8021x = 1;
 			}
 		}
@@ -751,6 +775,7 @@ int rtw_get_wapi_ie(u8 *in_ie, uint in_len, u8 *wapi_ie, u16 *wapi_len)
 	u8 wapi_oui1[4] = {0x0, 0x14, 0x72, 0x01};
 	u8 wapi_oui2[4] = {0x0, 0x14, 0x72, 0x02};
 
+	_func_enter_;
 
 	if (wapi_len)
 		*wapi_len = 0;
@@ -766,8 +791,15 @@ int rtw_get_wapi_ie(u8 *in_ie, uint in_len, u8 *wapi_ie, u16 *wapi_len)
 		/* if(authmode==_WAPI_IE_) */
 		if (authmode == _WAPI_IE_ && (_rtw_memcmp(&in_ie[cnt + 6], wapi_oui1, 4) == _TRUE ||
 			_rtw_memcmp(&in_ie[cnt + 6], wapi_oui2, 4) == _TRUE)) {
-			if (wapi_ie)
+			if (wapi_ie) {
 				_rtw_memcpy(wapi_ie, &in_ie[cnt], in_ie[cnt + 1] + 2);
+
+				for (i = 0; i < (in_ie[cnt + 1] + 2); i = i + 8) {
+					RT_TRACE(_module_rtl871x_mlme_c_, _drv_info_, ("\n %2x,%2x,%2x,%2x,%2x,%2x,%2x,%2x\n",
+						wapi_ie[i], wapi_ie[i + 1], wapi_ie[i + 2], wapi_ie[i + 3], wapi_ie[i + 4],
+						wapi_ie[i + 5], wapi_ie[i + 6], wapi_ie[i + 7]));
+				}
+			}
 
 			if (wapi_len)
 				*wapi_len = in_ie[cnt + 1] + 2;
@@ -781,6 +813,7 @@ int rtw_get_wapi_ie(u8 *in_ie, uint in_len, u8 *wapi_ie, u16 *wapi_len)
 	if (wapi_len)
 		len = *wapi_len;
 
+	_func_exit_;
 
 	return len;
 
@@ -793,6 +826,7 @@ int rtw_get_sec_ie(u8 *in_ie, uint in_len, u8 *rsn_ie, u16 *rsn_len, u8 *wpa_ie,
 	u8 wpa_oui[4] = {0x0, 0x50, 0xf2, 0x01};
 	uint	cnt;
 
+	_func_enter_;
 
 	/* Search required WPA or WPA2 IE and copy to sec_ie[ ] */
 
@@ -804,17 +838,33 @@ int rtw_get_sec_ie(u8 *in_ie, uint in_len, u8 *rsn_ie, u16 *rsn_len, u8 *wpa_ie,
 		authmode = in_ie[cnt];
 
 		if ((authmode == _WPA_IE_ID_) && (_rtw_memcmp(&in_ie[cnt + 2], &wpa_oui[0], 4) == _TRUE)) {
+			RT_TRACE(_module_rtl871x_mlme_c_, _drv_info_, ("\n rtw_get_wpa_ie: sec_idx=%d in_ie[cnt+1]+2=%d\n", sec_idx, in_ie[cnt + 1] + 2));
 
-			if (wpa_ie)
+			if (wpa_ie) {
 				_rtw_memcpy(wpa_ie, &in_ie[cnt], in_ie[cnt + 1] + 2);
+
+				for (i = 0; i < (in_ie[cnt + 1] + 2); i = i + 8) {
+					RT_TRACE(_module_rtl871x_mlme_c_, _drv_info_, ("\n %2x,%2x,%2x,%2x,%2x,%2x,%2x,%2x\n",
+						wpa_ie[i], wpa_ie[i + 1], wpa_ie[i + 2], wpa_ie[i + 3], wpa_ie[i + 4],
+						wpa_ie[i + 5], wpa_ie[i + 6], wpa_ie[i + 7]));
+				}
+			}
 
 			*wpa_len = in_ie[cnt + 1] + 2;
 			cnt += in_ie[cnt + 1] + 2; /* get next */
 		} else {
 			if (authmode == _WPA2_IE_ID_) {
+				RT_TRACE(_module_rtl871x_mlme_c_, _drv_info_, ("\n get_rsn_ie: sec_idx=%d in_ie[cnt+1]+2=%d\n", sec_idx, in_ie[cnt + 1] + 2));
 
-				if (rsn_ie)
+				if (rsn_ie) {
 					_rtw_memcpy(rsn_ie, &in_ie[cnt], in_ie[cnt + 1] + 2);
+
+					for (i = 0; i < (in_ie[cnt + 1] + 2); i = i + 8) {
+						RT_TRACE(_module_rtl871x_mlme_c_, _drv_info_, ("\n %2x,%2x,%2x,%2x,%2x,%2x,%2x,%2x\n",
+							rsn_ie[i], rsn_ie[i + 1], rsn_ie[i + 2], rsn_ie[i + 3], rsn_ie[i + 4],
+							rsn_ie[i + 5], rsn_ie[i + 6], rsn_ie[i + 7]));
+					}
+				}
 
 				*rsn_len = in_ie[cnt + 1] + 2;
 				cnt += in_ie[cnt + 1] + 2; /* get next */
@@ -825,6 +875,7 @@ int rtw_get_sec_ie(u8 *in_ie, uint in_len, u8 *rsn_ie, u16 *rsn_len, u8 *wpa_ie,
 
 	}
 
+	_func_exit_;
 
 	return *rsn_len + *wpa_len;
 
@@ -1600,8 +1651,8 @@ void rtw_ies_get_chbw(u8 *ies, int ies_len, u8 *ch, u8 *bw, u8 *offset)
 void rtw_bss_get_chbw(WLAN_BSSID_EX *bss, u8 *ch, u8 *bw, u8 *offset)
 {
 	rtw_ies_get_chbw(bss->IEs + sizeof(NDIS_802_11_FIXED_IEs)
-		, bss->IELength - sizeof(NDIS_802_11_FIXED_IEs)
-		, ch, bw, offset);
+			 , bss->IELength - sizeof(NDIS_802_11_FIXED_IEs)
+			 , ch, bw, offset);
 
 	if (*ch == 0)
 		*ch = bss->Configuration.DSConfig;
@@ -2491,11 +2542,14 @@ int rtw_get_cipher_info(struct wlan_network *pnetwork)
 	pbuf = rtw_get_wpa_ie(&pnetwork->network.IEs[12], &wpa_ielen, pnetwork->network.IELength - 12);
 
 	if (pbuf && (wpa_ielen > 0)) {
+		RT_TRACE(_module_rtl871x_mlme_c_, _drv_info_, ("rtw_get_cipher_info: wpa_ielen: %d", wpa_ielen));
 		if (_SUCCESS == rtw_parse_wpa_ie(pbuf, wpa_ielen + 2, &group_cipher, &pairwise_cipher, &is8021x)) {
 
 			pnetwork->BcnInfo.pairwise_cipher = pairwise_cipher;
 			pnetwork->BcnInfo.group_cipher = group_cipher;
 			pnetwork->BcnInfo.is_8021x = is8021x;
+			RT_TRACE(_module_rtl871x_mlme_c_, _drv_info_, ("%s: pnetwork->pairwise_cipher: %d, is_8021x is %d",
+				__func__, pnetwork->BcnInfo.pairwise_cipher, pnetwork->BcnInfo.is_8021x));
 			ret = _SUCCESS;
 		}
 	} else {
@@ -2503,10 +2557,15 @@ int rtw_get_cipher_info(struct wlan_network *pnetwork)
 		pbuf = rtw_get_wpa2_ie(&pnetwork->network.IEs[12], &wpa_ielen, pnetwork->network.IELength - 12);
 
 		if (pbuf && (wpa_ielen > 0)) {
+			RT_TRACE(_module_rtl871x_mlme_c_, _drv_info_, ("get RSN IE\n"));
 			if (_SUCCESS == rtw_parse_wpa2_ie(pbuf, wpa_ielen + 2, &group_cipher, &pairwise_cipher, &is8021x)) {
+				RT_TRACE(_module_rtl871x_mlme_c_, _drv_info_, ("get RSN IE  OK!!!\n"));
 				pnetwork->BcnInfo.pairwise_cipher = pairwise_cipher;
 				pnetwork->BcnInfo.group_cipher = group_cipher;
 				pnetwork->BcnInfo.is_8021x = is8021x;
+				RT_TRACE(_module_rtl871x_mlme_c_, _drv_info_, ("%s: pnetwork->pairwise_cipher: %d,"
+					"pnetwork->group_cipher is %d, is_8021x is %d",	__func__, pnetwork->BcnInfo.pairwise_cipher,
+					pnetwork->BcnInfo.group_cipher, pnetwork->BcnInfo.is_8021x));
 				ret = _SUCCESS;
 			}
 		}
@@ -2534,6 +2593,10 @@ void rtw_get_bcn_info(struct wlan_network *pnetwork)
 	} else
 		pnetwork->BcnInfo.encryp_protocol = ENCRYP_PROTOCOL_OPENSYS;
 	rtw_get_sec_ie(pnetwork->network.IEs , pnetwork->network.IELength, NULL, &rsn_len, NULL, &wpa_len);
+	RT_TRACE(_module_rtl871x_mlme_c_, _drv_info_, ("rtw_get_bcn_info: ssid=%s\n", pnetwork->network.Ssid.Ssid));
+	RT_TRACE(_module_rtl871x_mlme_c_, _drv_info_, ("rtw_get_bcn_info: wpa_len=%d rsn_len=%d\n", wpa_len, rsn_len));
+	RT_TRACE(_module_rtl871x_mlme_c_, _drv_info_, ("rtw_get_bcn_info: ssid=%s\n", pnetwork->network.Ssid.Ssid));
+	RT_TRACE(_module_rtl871x_mlme_c_, _drv_info_, ("rtw_get_bcn_info: wpa_len=%d rsn_len=%d\n", wpa_len, rsn_len));
 
 	if (rsn_len > 0)
 		pnetwork->BcnInfo.encryp_protocol = ENCRYP_PROTOCOL_WPA2;
@@ -2543,6 +2606,10 @@ void rtw_get_bcn_info(struct wlan_network *pnetwork)
 		if (bencrypt)
 			pnetwork->BcnInfo.encryp_protocol = ENCRYP_PROTOCOL_WEP;
 	}
+	RT_TRACE(_module_rtl871x_mlme_c_, _drv_info_, ("rtw_get_bcn_info: pnetwork->encryp_protocol is %x\n",
+			pnetwork->BcnInfo.encryp_protocol));
+	RT_TRACE(_module_rtl871x_mlme_c_, _drv_info_, ("rtw_get_bcn_info: pnetwork->encryp_protocol is %x\n",
+			pnetwork->BcnInfo.encryp_protocol));
 	rtw_get_cipher_info(pnetwork);
 
 	/* get bwmode and ch_offset */
@@ -2580,43 +2647,13 @@ u8	rtw_ht_mcsset_to_nss(u8 *supp_mcs_set)
 	return nss;
 }
 
-u32	rtw_ht_mcs_set_to_bitmap(u8 *mcs_set, u8 nss)
-{
-	u8 i;
-	u32 bitmap = 0;
-
-	for (i = 0; i < nss; i++)
-		bitmap |= mcs_set[i] << (i * 8);
-
-	RTW_INFO("ht_mcs_set=%02x %02x %02x %02x, nss=%u, bitmap=%08x\n"
-		, mcs_set[0], mcs_set[1], mcs_set[2], mcs_set[3], nss, bitmap);
-
-	return bitmap;
-}
-
 /* show MCS rate, unit: 100Kbps */
 u16 rtw_mcs_rate(u8 rf_type, u8 bw_40MHz, u8 short_GI, unsigned char *MCS_rate)
 {
 	u16 max_rate = 0;
 
-	if (MCS_rate[3]) {
-		if (MCS_rate[3] & BIT(7))
-			max_rate = (bw_40MHz) ? ((short_GI) ? 6000 : 5400) : ((short_GI) ? 2889 : 2600);
-		else if (MCS_rate[3] & BIT(6))
-			max_rate = (bw_40MHz) ? ((short_GI) ? 5400 : 4860) : ((short_GI) ? 2600 : 2340);
-		else if (MCS_rate[3] & BIT(5))
-			max_rate = (bw_40MHz) ? ((short_GI) ? 4800 : 4320) : ((short_GI) ? 2311 : 2080);
-		else if (MCS_rate[3] & BIT(4))
-			max_rate = (bw_40MHz) ? ((short_GI) ? 3600 : 3240) : ((short_GI) ? 1733 : 1560);
-		else if (MCS_rate[3] & BIT(3))
-			max_rate = (bw_40MHz) ? ((short_GI) ? 2400 : 2160) : ((short_GI) ? 1156 : 1040);
-		else if (MCS_rate[3] & BIT(2))
-			max_rate = (bw_40MHz) ? ((short_GI) ? 1800 : 1620) : ((short_GI) ? 867 : 780);
-		else if (MCS_rate[3] & BIT(1))
-			max_rate = (bw_40MHz) ? ((short_GI) ? 1200 : 1080) : ((short_GI) ? 578 : 520);
-		else if (MCS_rate[3] & BIT(0))
-			max_rate = (bw_40MHz) ? ((short_GI) ? 600 : 540) : ((short_GI) ? 289 : 260);
-	} else if (MCS_rate[2]) {
+	/*MCS_rate[2] = 3T3R , MCS_rate[1] = 2T2R , MCS_rate[0] = 1T1R*/
+	if (MCS_rate[2]) {
 		if (MCS_rate[2] & BIT(7))
 			max_rate = (bw_40MHz) ? ((short_GI) ? 4500 : 4050) : ((short_GI) ? 2167 : 1950);
 		else if (MCS_rate[2] & BIT(6))
@@ -2728,4 +2765,3 @@ const char *action_public_str(u8 action)
 	action = (action >= ACT_PUBLIC_MAX) ? ACT_PUBLIC_MAX : action;
 	return _action_public_str[action];
 }
-

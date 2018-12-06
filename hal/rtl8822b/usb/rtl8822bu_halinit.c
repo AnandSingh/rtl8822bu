@@ -1,6 +1,6 @@
 /******************************************************************************
  *
- * Copyright(c) 2015 - 2017 Realtek Corporation.
+ * Copyright(c) 2015 - 2016 Realtek Corporation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
@@ -11,7 +11,12 @@
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
  * more details.
  *
- *****************************************************************************/
+ * You should have received a copy of the GNU General Public License along with
+ * this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110, USA
+ *
+ *
+ ******************************************************************************/
 #define _RTL8822BU_HALINIT_C_
 
 #include <hal_data.h>			/* HAL DATA */
@@ -39,163 +44,10 @@ static void _dbg_dump_macreg(PADAPTER padapter)
 	}
 }
 
-#ifdef CONFIG_FWLPS_IN_IPS
-u8 rtl8822bu_fw_ips_init(_adapter *padapter)
-{
-	struct sreset_priv *psrtpriv = &GET_HAL_DATA(padapter)->srestpriv;
-	struct debug_priv *pdbgpriv = &adapter_to_dvobj(padapter)->drv_dbg;
-	struct pwrctrl_priv *pwrctl = adapter_to_pwrctl(padapter);
-
-	if (pwrctl->bips_processing == _TRUE && psrtpriv->silent_reset_inprogress == _FALSE
-		&& GET_HAL_DATA(padapter)->bFWReady == _TRUE && pwrctl->pre_ips_type == 0) {
-		u32 start_time;
-		u8 cpwm_orig, cpwm_now, rpwm;
-		u8 bMacPwrCtrlOn = _TRUE;
-
-		RTW_INFO("%s: Leaving FW_IPS\n", __func__);
-#ifdef CONFIG_LPS_LCLK
-		/* for polling cpwm */
-		cpwm_orig = 0;
-		rtw_hal_get_hwreg(padapter, HW_VAR_CPWM, &cpwm_orig);
-
-		/* set rpwm */
-		rtw_hal_get_hwreg(padapter, HW_VAR_RPWM_TOG, &rpwm);
-		rpwm += 0x80;
-		rpwm |= PS_ACK;
-		rtw_hal_set_hwreg(padapter, HW_VAR_SET_RPWM, (u8 *)(&rpwm));
-
-
-		RTW_INFO("%s: write rpwm=%02x\n", __func__, rpwm);
-
-		pwrctl->tog = (rpwm + 0x80) & 0x80;
-
-		/* do polling cpwm */
-		start_time = rtw_get_current_time();
-		do {
-
-			rtw_mdelay_os(1);
-
-			rtw_hal_get_hwreg(padapter, HW_VAR_CPWM, &cpwm_now);
-			if ((cpwm_orig ^ cpwm_now) & 0x80) {
-				#ifdef DBG_CHECK_FW_PS_STATE
-				RTW_INFO("%s: polling cpwm ok when leaving IPS in FWLPS state, cpwm_orig=%02x, cpwm_now=%02x, 0x100=0x%x\n"
-					, __func__, cpwm_orig, cpwm_now, rtw_read8(padapter, REG_CR));
-				#endif /* DBG_CHECK_FW_PS_STATE */
-				break;
-			}
-
-			if (rtw_get_passing_time_ms(start_time) > 100) {
-				RTW_INFO("%s: polling cpwm timeout when leaving IPS in FWLPS state, cpwm_orig=%02x, cpwm_now=%02x, 0x100=0x%x\n",
-					__func__, cpwm_orig, cpwm_now, rtw_read8(padapter, REG_CR));
-				break;
-			}
-		} while (1);
-#endif /* CONFIG_LPS_LCLK */
-		rtl8822b_set_FwPwrModeInIPS_cmd(padapter, 0);
-
-		rtw_hal_set_hwreg(padapter, HW_VAR_APFM_ON_MAC, &bMacPwrCtrlOn);
-#ifdef CONFIG_LPS_LCLK
-		#ifdef DBG_CHECK_FW_PS_STATE
-		if (rtw_fw_ps_state(padapter) == _FAIL) {
-			RTW_INFO("after hal init, fw ps state in 32k\n");
-			pdbgpriv->dbg_ips_drvopen_fail_cnt++;
-		}
-		#endif /* DBG_CHECK_FW_PS_STATE */
-#endif /* CONFIG_LPS_LCLK */
-		return _SUCCESS;
-	}
-	return _FAIL;
-}
-
-u8 rtl8822bu_fw_ips_deinit(_adapter *padapter)
-{
-	struct sreset_priv *psrtpriv =  &GET_HAL_DATA(padapter)->srestpriv;
-	struct debug_priv *pdbgpriv = &adapter_to_dvobj(padapter)->drv_dbg;
-	struct pwrctrl_priv *pwrctl = adapter_to_pwrctl(padapter);
-
-	if (pwrctl->bips_processing == _TRUE && psrtpriv->silent_reset_inprogress == _FALSE
-		&& GET_HAL_DATA(padapter)->bFWReady == _TRUE && padapter->netif_up == _TRUE) {
-		int cnt = 0;
-		u8 val8 = 0, rpwm;
-
-		RTW_INFO("%s: issue H2C to FW when entering IPS\n", __func__);
-
-		rtl8822b_set_FwPwrModeInIPS_cmd(padapter, 0x1);
-#ifdef CONFIG_LPS_LCLK
-		/* poll 0x1cc to make sure H2C command already finished by FW; MAC_0x1cc=0 means H2C done by FW. */
-		do {
-			val8 = rtw_read8(padapter, REG_HMETFR);
-			cnt++;
-			RTW_INFO("%s  polling REG_HMETFR=0x%x, cnt=%d\n", __func__, val8, cnt);
-			rtw_mdelay_os(10);
-		} while (cnt < 100 && (val8 != 0));
-
-		/* H2C done, enter 32k */
-		if (val8 == 0) {
-			/* set rpwm to enter 32k */
-			rtw_hal_get_hwreg(padapter, HW_VAR_RPWM_TOG, &rpwm);
-			rpwm += 0x80;
-			rpwm |= BIT_SYS_CLK_8822B;
-			rtw_hal_set_hwreg(padapter, HW_VAR_SET_RPWM, (u8 *)(&rpwm));
-			RTW_INFO("%s: write rpwm=%02x\n", __func__, rpwm);
-			pwrctl->tog = (val8 + 0x80) & 0x80;
-
-			cnt = val8 = 0;
-			do {
-				val8 = rtw_read8(padapter, REG_CR);
-				cnt++;
-				RTW_INFO("%s  polling 0x100=0x%x, cnt=%d\n", __func__, val8, cnt);
-				rtw_mdelay_os(10);
-			} while (cnt < 100 && (val8 != 0xEA));
-
-			#ifdef DBG_CHECK_FW_PS_STATE
-			if (val8 != 0xEA)
-				RTW_INFO("MAC_1C0=%08x, MAC_1C4=%08x, MAC_1C8=%08x, MAC_1CC=%08x\n"
-					, rtw_read32(padapter, 0x1c0), rtw_read32(padapter, 0x1c4)
-					, rtw_read32(padapter, 0x1c8), rtw_read32(padapter, REG_HMETFR));
-			#endif /* DBG_CHECK_FW_PS_STATE */
-		} else {
-			RTW_INFO("MAC_1C0=%08x, MAC_1C4=%08x, MAC_1C8=%08x, MAC_1CC=%08x\n"
-				, rtw_read32(padapter, 0x1c0), rtw_read32(padapter, 0x1c4)
-				, rtw_read32(padapter, 0x1c8), rtw_read32(padapter, REG_HMETFR));
-		}
-
-		RTW_INFO("polling done when entering IPS, check result : 0x100=0x%x, cnt=%d, MAC_1cc=0x%02x\n"
-			, rtw_read8(padapter, REG_CR), cnt, rtw_read8(padapter, REG_HMETFR));
-
-		pwrctl->pre_ips_type = 0;
-#endif /* CONFIG_LPS_LCLK */
-		return _SUCCESS;
-	}
-
-	pdbgpriv->dbg_carddisable_cnt++;
-	pwrctl->pre_ips_type = 1;
-
-	return _FAIL;
-
-}
-
-#endif
-
-static void hal_init_misc(PADAPTER padapter)
-{
-	if (padapter->registrypriv.wifi_spec) {
-		padapter->registrypriv.adaptivity_en = 1;
-		padapter->registrypriv.adaptivity_mode = 0;
-	}
-}
-
 u32 rtl8822bu_init(PADAPTER padapter)
 {
 	u8 status = _SUCCESS;
 	u32 init_start_time = rtw_get_current_time();
-
-#ifdef CONFIG_FWLPS_IN_IPS
-	if (_SUCCESS == rtl8822bu_fw_ips_init(padapter))
-		goto exit;
-#endif
-
-	hal_init_misc(padapter);
 
 	rtl8822b_init(padapter);
 
@@ -219,10 +71,6 @@ u32 rtl8822bu_deinit(PADAPTER padapter)
 
 	RTW_INFO("==> %s\n", __func__);
 
-#ifdef CONFIG_FWLPS_IN_IPS
-	if (_SUCCESS == rtl8822bu_fw_ips_deinit(padapter))
-		goto exit;
-#endif
 
 	hal_deinit_misc(padapter);
 	status = rtl8822b_deinit(padapter);
@@ -231,7 +79,6 @@ u32 rtl8822bu_deinit(PADAPTER padapter)
 		return _FAIL;
 	}
 
-exit:
 	RTW_INFO("%s <==\n", __func__);
 	return _SUCCESS;
 }
@@ -250,20 +97,13 @@ u32 rtl8822bu_inirp_init(PADAPTER padapter)
 	u32(*_read_interrupt)(struct intf_hdl *pintfhdl, u32 addr);
 #endif
 
-#ifdef CONFIG_FWLPS_IN_IPS
-	/* Do not sumbit urb repeat */
-	struct pwrctrl_priv *pwrctl = adapter_to_pwrctl(padapter);
-
-	if (pwrctl->bips_processing == _TRUE) {
-		status = _SUCCESS;
-		goto exit;
-	}
-#endif /* CONFIG_FWLPS_IN_IPS */
+	_func_enter_;
 
 	_read_port = pintfhdl->io_ops._read_port;
 
 	status = _SUCCESS;
 
+	RT_TRACE(_module_hci_hal_init_c_, _drv_info_, ("===> usb_inirp_init\n"));
 
 	precvpriv->ff_hwaddr = RECV_BULK_IN_ADDR;
 
@@ -271,6 +111,7 @@ u32 rtl8822bu_inirp_init(PADAPTER padapter)
 	precvbuf = (struct recv_buf *)precvpriv->precv_buf;
 	for (i = 0; i < NR_RECVBUFF; i++) {
 		if (_read_port(pintfhdl, precvpriv->ff_hwaddr, 0, (u8 *)precvbuf) == _FALSE) {
+			RT_TRACE(_module_hci_hal_init_c_, _drv_err_, ("usb_rx_init: usb_read_port error\n"));
 			status = _FAIL;
 			goto exit;
 		}
@@ -287,13 +128,16 @@ u32 rtl8822bu_inirp_init(PADAPTER padapter)
 	}
 	_read_interrupt = pintfhdl->io_ops._read_interrupt;
 	if (_read_interrupt(pintfhdl, RECV_INT_IN_ADDR) == _FALSE) {
+		RT_TRACE(_module_hci_hal_init_c_, _drv_err_, ("usb_rx_init: usb_read_interrupt error\n"));
 		status = _FAIL;
 	}
 #endif
 
 exit:
 
+	RT_TRACE(_module_hci_hal_init_c_, _drv_info_, ("<=== usb_inirp_init\n"));
 
+	_func_exit_;
 
 	return status;
 
@@ -301,9 +145,11 @@ exit:
 
 u32 rtl8822bu_inirp_deinit(PADAPTER padapter)
 {
+	RT_TRACE(_module_hci_hal_init_c_, _drv_info_, ("\n ===> usb_rx_deinit\n"));
 
 	rtw_read_port_cancel(padapter);
 
+	RT_TRACE(_module_hci_hal_init_c_, _drv_info_, ("\n <=== usb_rx_deinit\n"));
 
 	return _SUCCESS;
 }
@@ -408,14 +254,12 @@ void rtl8822bu_interface_configure(PADAPTER padapter)
 #ifdef CONFIG_USB_RX_AGGREGATION
 	/* according to value defined by halmac */
 	pHalData->rxagg_mode = RX_AGG_USB;
-#ifdef CONFIG_PLATFORM_NOVATEK_NT72668
-	pHalData->rxagg_usb_size = 0x03;
-	pHalData->rxagg_usb_timeout = 0x20;
-#elif defined(CONFIG_PLATFORM_HISILICON)
-	 /* use 16k to workaround for HISILICON platform */
-	pHalData->rxagg_usb_size = 3;
-	pHalData->rxagg_usb_timeout = 8;
-#endif /* CONFIG_PLATFORM_NOVATEK_NT72668 */
+#if 0
+	pHalData->rxagg_usb_size = 8;
+	pHalData->rxagg_usb_timeout = 0x6;
+	pHalData->rxagg_dma_size = 16;
+	pHalData->rxagg_dma_timeout = 0x6;
+#endif
 #endif /* CONFIG_USB_RX_AGGREGATION */
 
 	usb_set_queue_pipe_mapping(padapter,

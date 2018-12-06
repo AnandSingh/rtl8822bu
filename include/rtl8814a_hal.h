@@ -1,6 +1,6 @@
 /******************************************************************************
  *
- * Copyright(c) 2007 - 2017 Realtek Corporation.
+ * Copyright(c) 2007 - 2011 Realtek Corporation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
@@ -11,7 +11,12 @@
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
  * more details.
  *
- *****************************************************************************/
+ * You should have received a copy of the GNU General Public License along with
+ * this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110, USA
+ *
+ *
+ ******************************************************************************/
 #ifndef __RTL8814A_HAL_H__
 #define __RTL8814A_HAL_H__
 
@@ -33,6 +38,15 @@
 	#include "rtl8814a_sreset.h"
 #endif /* DBG_CONFIG_ERROR_DETECT */
 
+
+typedef enum _TX_PWR_PERCENTAGE {
+	TX_PWR_PERCENTAGE_0 = 0x01, /* 12.5% */
+	TX_PWR_PERCENTAGE_1 = 0x02, /* 25% */
+	TX_PWR_PERCENTAGE_2 = 0x04, /* 50% */
+	TX_PWR_PERCENTAGE_3 = 0x08, /* 100%, default target output power.	 */
+} TX_PWR_PERCENTAGE;
+
+
 enum {
 	VOLTAGE_V25						= 0x03,
 	LDOE25_SHIFT					= 28 ,
@@ -52,6 +66,24 @@ typedef struct _RT_FIRMWARE_8814 {
 
 #define PAGE_SIZE_TX_8814	PAGE_SIZE_128
 #define BCNQ_PAGE_NUM_8814		0x08
+
+/* ---------------------------------------------------------------------
+ *		RTL8814AU From header
+ * --------------------------------------------------------------------- */
+#define RTL8814A_FW_IMG					"rtl8814a/FW_NIC.bin"
+#define RTL8814A_FW_WW_IMG				"rtl8814a/FW_WoWLAN.bin"
+#define RTL8814A_PHY_REG					"rtl8814a/PHY_REG.txt"
+#define RTL8814A_PHY_RADIO_A				"rtl8814a/RadioA.txt"
+#define RTL8814A_PHY_RADIO_B				"rtl8814a/RadioB.txt"
+#define RTL8814A_PHY_RADIO_C				"rtl8814a/RadioC.txt"
+#define RTL8814A_PHY_RADIO_D				"rtl8814a/RadioD.txt"
+#define RTL8814A_TXPWR_TRACK				"rtl8814a/TxPowerTrack.txt"
+#define RTL8814A_AGC_TAB					"rtl8814a/AGC_TAB.txt"
+#define RTL8814A_PHY_MACREG				"rtl8814a/MAC_REG.txt"
+#define RTL8814A_PHY_REG_PG				"rtl8814a/PHY_REG_PG.txt"
+#define RTL8814A_PHY_REG_MP				"rtl8814a/PHY_REG_MP.txt"
+#define RTL8814A_TXPWR_LMT				"rtl8814a/TXPWR_LMT.txt"
+#define RTL8814A_WIFI_ANT_ISOLATION		"rtl8814a/wifi_ant_isolation.txt"
 
 #define Rtl8814A_NIC_PWR_ON_FLOW				rtl8814A_power_on_flow
 #define Rtl8814A_NIC_RF_OFF_FLOW				rtl8814A_radio_off_flow
@@ -296,6 +328,7 @@ void SetHwReg8814A(PADAPTER padapter, u8 variable, u8 *pval);
 void GetHwReg8814A(PADAPTER padapter, u8 variable, u8 *pval);
 u8 SetHalDefVar8814A(PADAPTER padapter, HAL_DEF_VARIABLE variable, void *pval);
 u8 GetHalDefVar8814A(PADAPTER padapter, HAL_DEF_VARIABLE variable, void *pval);
+s32 c2h_id_filter_ccx_8814a(u8 *buf);
 void rtl8814_set_hal_ops(struct hal_ops *pHalFunc);
 void init_hal_spec_8814a(_adapter *adapter);
 

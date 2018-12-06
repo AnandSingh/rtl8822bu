@@ -1,6 +1,6 @@
 /******************************************************************************
  *
- * Copyright(c) 2007 - 2017 Realtek Corporation.
+ * Copyright(c) 2007 - 2011 Realtek Corporation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
@@ -11,7 +11,12 @@
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
  * more details.
  *
- *****************************************************************************/
+ * You should have received a copy of the GNU General Public License along with
+ * this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110, USA
+ *
+ *
+ ******************************************************************************/
 #ifndef __INC_HAL8814PHYCFG_H__
 #define __INC_HAL8814PHYCFG_H__
 
@@ -87,6 +92,12 @@ phy_BB8814A_Config_ParaFile(
 	IN	PADAPTER	Adapter
 );
 
+
+RT_STATUS
+PHY_BBConfigMP_8814A(
+	IN	PADAPTER	Adapter
+);
+
 VOID
 PHY_ConfigBB_8814A(
 	IN	PADAPTER	Adapter
@@ -123,22 +134,12 @@ PHY_SetTxPowerLevel8814(
 );
 
 u8
-phy_get_tx_power_index_8814a(
+PHY_GetTxPowerIndex_8814A(
 	IN	PADAPTER			Adapter,
 	IN  u8				RFPath,
 	IN	u8				Rate,
 	IN	CHANNEL_WIDTH		BandWidth,
 	IN	u8				Channel
-);
-
-u8
-PHY_GetTxPowerIndex8814A(
-	IN	PADAPTER			Adapter,
-	IN  u8				RFPath,
-	IN	u8				Rate,
-	IN	u8				BandWidth,
-	IN	u8				Channel,
-	struct txpwr_idx_comp *tic
 );
 
 VOID
@@ -170,7 +171,7 @@ PHY_GetTxBBSwing_8814A(
 
 VOID
 PHY_SwChnlTimerCallback8814A(
-	IN	struct timer_list		*p_timer
+	IN	PRT_TIMER		pTimer
 );
 
 VOID
@@ -241,6 +242,19 @@ PHY_SwitchWirelessBand8814A(
 VOID
 PHY_SetIO_8814A(
 	PADAPTER		pAdapter
+);
+
+VOID
+PHY_SetBWMode8814(
+	IN	PADAPTER			Adapter,
+	IN	CHANNEL_WIDTH	Bandwidth,	/* 20M or 40M */
+	IN	u8					Offset		/* Upper, Lower, or Don't care */
+);
+
+VOID
+PHY_SwChnl8814(
+	IN	PADAPTER	Adapter,
+	IN	u8			channel
 );
 
 VOID

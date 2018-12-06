@@ -1,6 +1,6 @@
 /******************************************************************************
  *
- * Copyright(c) 2007 - 2017 Realtek Corporation.
+ * Copyright(c) 2007 - 2012 Realtek Corporation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
@@ -11,7 +11,12 @@
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
  * more details.
  *
- *****************************************************************************/
+ * You should have received a copy of the GNU General Public License along with
+ * this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110, USA
+ *
+ *
+ ******************************************************************************/
 
 #include <drv_types.h>
 #include <hal_data.h>
@@ -268,7 +273,7 @@ void sreset_stop_adapter(_adapter *padapter)
 
 	if (check_fwstate(pmlmepriv, _FW_UNDER_LINKING)) {
 		rtw_set_to_roam(padapter, 0);
-		rtw_join_timeout_handler(padapter);
+		_rtw_join_timeout_handler(padapter);
 	}
 
 }
@@ -292,7 +297,7 @@ void sreset_start_adapter(_adapter *padapter)
 #endif
 
 	if (is_primary_adapter(padapter))
-		_set_timer(&adapter_to_dvobj(padapter)->dynamic_chk_timer, 2000);
+		_set_timer(&padapter->mlmepriv.dynamic_chk_timer, 2000);
 
 	rtw_netif_wake_queue(padapter->pnetdev);
 }

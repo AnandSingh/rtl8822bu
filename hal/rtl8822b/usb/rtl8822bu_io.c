@@ -1,6 +1,6 @@
 /******************************************************************************
  *
- * Copyright(c) 2015 - 2017 Realtek Corporation.
+ * Copyright(c) 2015 - 2016 Realtek Corporation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
@@ -11,13 +11,19 @@
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
  * more details.
  *
- *****************************************************************************/
+ * You should have received a copy of the GNU General Public License along with
+ * this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110, USA
+ *
+ *
+ ******************************************************************************/
 #define _RTL8822BU_IO_C_
 
 #include <drv_types.h>		/* PADAPTER and etc. */
 
 void rtl8822bu_set_intf_ops(struct _io_ops *pops)
 {
+	_func_enter_;
 
 	_rtw_memset((u8 *)pops, 0, sizeof(struct _io_ops));
 
@@ -47,5 +53,6 @@ void rtl8822bu_set_intf_ops(struct _io_ops *pops)
 	pops->_read_interrupt = &usb_read_interrupt;
 #endif
 
+	_func_exit_;
 
 }

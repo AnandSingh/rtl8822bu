@@ -1,6 +1,6 @@
 /******************************************************************************
  *
- * Copyright(c) 2007 - 2017 Realtek Corporation.
+ * Copyright(c) 2007 - 2011 Realtek Corporation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
@@ -11,7 +11,12 @@
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
  * more details.
  *
- *****************************************************************************/
+ * You should have received a copy of the GNU General Public License along with
+ * this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110, USA
+ *
+ *
+ ******************************************************************************/
 #ifndef __WLAN_BSSDEF_H__
 #define __WLAN_BSSDEF_H__
 
@@ -514,7 +519,7 @@ typedef struct _NDIS_802_11_TEST {
 
 #endif /* PLATFORM_FREEBSD */
 #ifndef Ndis802_11APMode
-#define Ndis802_11APMode (Ndis802_11InfrastructureMax+1)
+	#define Ndis802_11APMode (Ndis802_11InfrastructureMax+1)
 #endif
 
 typedef struct _WLAN_PHY_INFO {
@@ -541,8 +546,8 @@ typedef struct _WLAN_BCN_INFO {
 *   WLAN_BSSID_EX and get_WLAN_BSSID_EX_sz()
 */
 #ifdef PLATFORM_WINDOWS
-#pragma pack(push)
-#pragma pack(1)
+	#pragma pack(push)
+	#pragma pack(1)
 #endif
 typedef struct _WLAN_BSSID_EX {
 	ULONG  Length;
@@ -560,11 +565,11 @@ typedef struct _WLAN_BSSID_EX {
 	UCHAR  IEs[MAX_IE_SZ];	/* (timestamp, beacon interval, and capability information) */
 }
 #ifndef PLATFORM_WINDOWS
-__attribute__((packed))
+	__attribute__((packed))
 #endif
 WLAN_BSSID_EX, *PWLAN_BSSID_EX;
 #ifdef PLATFORM_WINDOWS
-#pragma pack(pop)
+	#pragma pack(pop)
 #endif
 
 #define BSS_EX_IES(bss_ex) ((bss_ex)->IEs)

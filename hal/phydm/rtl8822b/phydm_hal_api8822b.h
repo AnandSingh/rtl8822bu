@@ -1,7 +1,7 @@
 /******************************************************************************
  *
  * Copyright(c) 2007 - 2011 Realtek Corporation. All rights reserved.
- *
+ *                                        
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
  * published by the Free Software Foundation.
@@ -22,120 +22,112 @@
 
 #if (RTL8822B_SUPPORT == 1)
 
-#define	PHY_CONFIG_VERSION_8822B			"28.5.34"	/*2017.01.18     (HW user guide version: R28, SW user guide version: R05, Modification: R34), remove A cut setting, refine CCK txfilter and OFDM CCA setting by YuChen*/
+#define	PHY_CONFIG_VERSION_8822B			"26.5.27"	/*2016.05.19     (HW user guide version: R26, SW user guide version: R05, Modification: R27)*/
 
 #define	INVALID_RF_DATA					0xffffffff
 #define	INVALID_TXAGC_DATA				0xff
 
-#define number_of_psd_value				5
-#define number_of_sample                3
-#define number_of_2g_freq_pt			14
-#define number_of_5g_freq_pt			10
-
 #define	config_phydm_read_rf_check_8822b(data)			(data != INVALID_RF_DATA)
 #define	config_phydm_read_txagc_check_8822b(data)		(data != INVALID_TXAGC_DATA)
 
-u32
+u4Byte
 config_phydm_read_rf_reg_8822b(
-	struct PHY_DM_STRUCT				*p_dm_odm,
-	enum odm_rf_radio_path_e		rf_path,
-	u32					reg_addr,
-	u32					bit_mask
-);
+	IN	PDM_ODM_T				pDM_Odm,
+	IN	ODM_RF_RADIO_PATH_E		RFPath,
+	IN	u4Byte					RegAddr,
+	IN	u4Byte					BitMask
+	);
 
-boolean
+BOOLEAN
 config_phydm_write_rf_reg_8822b(
-	struct PHY_DM_STRUCT				*p_dm_odm,
-	enum odm_rf_radio_path_e		rf_path,
-	u32					reg_addr,
-	u32					bit_mask,
-	u32					data
-);
+	IN	PDM_ODM_T				pDM_Odm,
+	IN	ODM_RF_RADIO_PATH_E		RFPath,
+	IN	u4Byte					RegAddr,
+	IN	u4Byte					BitMask,
+	IN	u4Byte					Data
+	);
 
-boolean
+BOOLEAN
 config_phydm_write_txagc_8822b(
-	struct PHY_DM_STRUCT				*p_dm_odm,
-	u32					power_index,
-	enum odm_rf_radio_path_e		path,
-	u8					hw_rate
-);
+	IN	PDM_ODM_T				pDM_Odm,
+	IN	u4Byte					PowerIndex,
+	IN	ODM_RF_RADIO_PATH_E		Path,	
+	IN	u1Byte					HwRate
+	);
 
-u8
+u1Byte
 config_phydm_read_txagc_8822b(
-	struct PHY_DM_STRUCT				*p_dm_odm,
-	enum odm_rf_radio_path_e		path,
-	u8					hw_rate
-);
+	IN	PDM_ODM_T				pDM_Odm,
+	IN	ODM_RF_RADIO_PATH_E		Path,
+	IN	u1Byte					HwRate
+	);
 
-void
-phydm_dynamic_spur_det_elimitor(
-	struct PHY_DM_STRUCT				*p_dm_odm
-);
+BOOLEAN
+config_phydm_switch_band_8822b(	
+	IN	PDM_ODM_T				pDM_Odm,
+	IN	u1Byte					central_ch
+	);
 
-boolean
-config_phydm_switch_band_8822b(
-	struct PHY_DM_STRUCT				*p_dm_odm,
-	u8					central_ch
-);
+BOOLEAN
+config_phydm_switch_channel_8822b(	
+	IN	PDM_ODM_T				pDM_Odm,
+	IN	u1Byte					central_ch
+	);
 
-boolean
-config_phydm_switch_channel_8822b(
-	struct PHY_DM_STRUCT				*p_dm_odm,
-	u8					central_ch
-);
+BOOLEAN
+config_phydm_switch_bandwidth_8822b(	
+	IN	PDM_ODM_T				pDM_Odm,
+	IN	u1Byte					primary_ch_idx,
+	IN	ODM_BW_E				bandwidth
+	);
 
-boolean
-config_phydm_switch_bandwidth_8822b(
-	struct PHY_DM_STRUCT				*p_dm_odm,
-	u8					primary_ch_idx,
-	enum odm_bw_e				bandwidth
-);
+BOOLEAN
+config_phydm_switch_channel_bw_8822b(	
+	IN	PDM_ODM_T				pDM_Odm,
+	IN	u1Byte					central_ch,
+	IN	u1Byte					primary_ch_idx,
+	IN	ODM_BW_E				bandwidth
+	);
 
-boolean
-config_phydm_switch_channel_bw_8822b(
-	struct PHY_DM_STRUCT				*p_dm_odm,
-	u8					central_ch,
-	u8					primary_ch_idx,
-	enum odm_bw_e				bandwidth
-);
-
-boolean
+BOOLEAN
 config_phydm_trx_mode_8822b(
-	struct PHY_DM_STRUCT				*p_dm_odm,
-	enum odm_rf_path_e			tx_path,
-	enum odm_rf_path_e			rx_path,
-	boolean					is_tx2_path
-);
+	IN	PDM_ODM_T				pDM_Odm,
+	IN	ODM_RF_PATH_E			TxPath,
+	IN	ODM_RF_PATH_E			RxPath,
+	IN	BOOLEAN					bTx2Path
+	);
 
-boolean
-config_phydm_parameter_init_8822b(
-	struct PHY_DM_STRUCT				*p_dm_odm,
-	enum odm_parameter_init_e	type
-);
+BOOLEAN
+config_phydm_parameter_init(
+	IN	PDM_ODM_T				pDM_Odm,
+	IN	ODM_PARAMETER_INIT_E	type
+	);
 
 
 /* ======================================================================== */
 /* These following functions can be used for PHY DM only*/
 
-boolean
+BOOLEAN
 phydm_write_txagc_1byte_8822b(
-	struct PHY_DM_STRUCT				*p_dm_odm,
-	u32					power_index,
-	enum odm_rf_radio_path_e		path,
-	u8					hw_rate
-);
+	IN	PDM_ODM_T				pDM_Odm,
+	IN	u4Byte					PowerIndex,
+	IN	ODM_RF_RADIO_PATH_E		Path,	
+	IN	u1Byte					HwRate
+	);
 
-void
+VOID
 phydm_init_hw_info_by_rfe_type_8822b(
-	struct PHY_DM_STRUCT				*p_dm_odm
-);
+	IN	PDM_ODM_T				pDM_Odm
+	);
 
-s32
+s4Byte
 phydm_get_condition_number_8822B(
-	struct PHY_DM_STRUCT				*p_dm_odm
-);
+	IN	PDM_ODM_T				pDM_Odm
+	);
 
 /* ======================================================================== */
 
 #endif	/* RTL8822B_SUPPORT == 1 */
 #endif	/*  __INC_PHYDM_API_H_8822B__ */
+
+
