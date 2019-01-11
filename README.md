@@ -6,6 +6,7 @@ Currently, only STA/Monitor Mode is supported, no AP.
 
 A few known wireless cards that use this driver include 
 * [Edimax EW-7822ULC](http://us.edimax.com/edimax/merchandise/merchandise_detail/data/edimax/us/wireless_adapters_ac1200_dual-band/ew-7822ulc/)
+* [Edimax EW-7822UTC](https://www.edimax.com/edimax/merchandise/merchandise_detail/data/edimax/global/wireless_adapters_ac1200_dual-band/ew-7822utc/)
 * [ASUS AC-53 NANO](https://www.asus.com/Networking/USB-AC53-Nano/)
 * [Linksys WUSB6400M](https://www.linksys.com/us/p/P-WUSB6400M/)
 
@@ -20,10 +21,27 @@ $ sudo apt install build-essential libc6-dev linux-headers-`dpkg-architecture -q
 
 On the other distros, please refer their build instruction for kernel modules (Because I don't know so much any other than Debian/Ubuntu). And it would be appriciated if you would tell me the way.
 
+Ubuntu kernel 4.15.30 or later also requires:
+```
+sudo apt install -y libelf-dev
+```
+
 
 ## Build and install.
 
-Currently tested with Linux kernel 4.13.10 and 4.14.2 on X86_64 platform **only**.
+### DKMS install
+
+On Ubuntu and Debian derivatives it is recommended to use DKMS so that the module builds automatically for each newly acquired kernel.
+Put the repository into `/usr/src/rtl8822bu-4.15`, and execute:
+```
+dkms add     rtl8822bu/4.15
+dkms build   rtl8822bu/4.15
+dkms install rtl8822bu/4.15
+```
+
+### Manual install
+
+Currently tested with Linux kernel 4.15.17 and 4.16.5 on X86_64 platform **only**.
 
 To build, you have to retrieve source and run `make`.
 If via Git, do following:
@@ -38,9 +56,9 @@ $ sudo make install
 Or via tarball, do:
 
 ```sh
-$ curl -LO https://github.com/FomalhautWeisszwerg/rtl8822bu/archive/release-for-linux-4.14.tar.gz
-$ tar -xf release-for-linux-4.14.tar.gz
-$ cd rtl8822bu-release-for-linux-4.14/
+$ curl -LO https://github.com/FomalhautWeisszwerg/rtl8822bu/archive/release-for-linux-4.15.tar.gz
+$ tar -xf release-for-linux-4.15.tar.gz
+$ cd rtl8822bu-release-for-linux-4.15/
 $ make
 $ sudo make install
 ```

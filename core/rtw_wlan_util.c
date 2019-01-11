@@ -4724,7 +4724,11 @@ int rtw_dev_nlo_info_set(struct pno_nlo_info *nlo_info, pno_ssid_t *ssid,
 	source = rtw_zmalloc(2048);
 
 	if (source != NULL) {
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 14, 0))
 		len = kernel_read(fp, source, len, &pos);
+#elif (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 1, 0)) && (LINUX_VERSION_CODE < KERNEL_VERSION(4, 14, 0))
+		len = vfs_read(fp, source, len, &pos);
+#endif
 		rtw_parse_cipher_list(nlo_info, source);
 		rtw_mfree(source, 2048);
 	}
